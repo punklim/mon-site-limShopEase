@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopEase — Panier</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f13; --surface: #1a1a24; --surface2: #22222f;
+      --border: #2e2e40; --accent: #f0c060; --text: #f0eff4;
+      --muted: #8888aa; --success: #50d08a; --danger: #e85a5a;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; }
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background: radial-gradient(ellipse at 20% 20%,rgba(240,192,96,.04) 0%,transparent 60%),
+                  radial-gradient(ellipse at 80% 80%,rgba(232,136,90,.04) 0%,transparent 60%);
+    }
+    header {
+      position:sticky; top:0; z-index:100;
+      background:rgba(15,15,19,.85); backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      padding:0 2rem; height:64px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .logo { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--accent); text-decoration:none; }
+    nav { display:flex; gap:.25rem; align-items:center; }
+    nav a { color:var(--muted); text-decoration:none; padding:.4rem .9rem; border-radius:8px; font-size:.9rem; font-weight:500; transition:all .2s; }
+    nav a:hover { color:var(--text); background:var(--surface2); }
+    nav a.active { color:var(--accent); }
+    main { position:relative; z-index:1; max-width:780px; margin:0 auto; padding:3rem 2rem; }
+    .page-title { font-family:'Playfair Display',serif; font-size:2.2rem; margin-bottom:.4rem; background:linear-gradient(135deg,var(--text),var(--muted)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .page-sub { color:var(--muted); font-size:.9rem; margin-bottom:2rem; }
+    .cart-item {
+      background:var(--surface); border:1px solid var(--border); border-radius:16px;
+      padding:1.2rem 1.5rem; display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:.75rem; transition:all .3s; animation:fadeUp .4s ease both;
+    }
+    .cart-item:hover { border-color:rgba(240,192,96,.3); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .item-left { display:flex; align-items:center; gap:1rem; }
+    .item-icon { width:48px; height:48px; background:var(--surface2); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+    .item-name { font-weight:600; font-size:.95rem; margin-bottom:.2rem; }
+    .item-price { color:var(--accent); font-weight:600; font-size:.9rem; }
+    .btn-remove { background:rgba(232,90,90,.1); border:1px solid rgba(232,90,90,.2); color:var(--danger); padding:.4rem .9rem; border-radius:8px; font-size:.8rem; font-weight:600; cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
+    .btn-remove:hover { background:rgba(232,90,90,.2); border-color:var(--danger); }
+    .summary { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:1.5rem; margin-top:1.5rem; }
+    .summary-row { display:flex; justify-content:space-between; align-items:center; padding:.6rem 0; font-size:.9rem; }
+    .summary-row.total { border-top:1px solid var(--border); margin-top:.5rem; padding-top:1rem; }
+    .total-label { font-size:1rem; font-weight:600; }
+    .total-amount { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--accent); }
+    .btn-group { display:flex; gap:.75rem; margin-top:1.2rem; }
+    .btn-danger-sm { flex:1; padding:.8rem; background:rgba(232,90,90,.1); border:1px solid rgba(232,90,90,.3); color:var(--danger); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:.9rem; font-weight:600; cursor:pointer; transition:all .2s; }
+    .btn-danger-sm:hover { background:rgba(232,90,90,.2); }
+    .btn-success { flex:2; padding:.8rem; background:var(--accent); border:none; color:#000; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:.9rem; font-weight:700; cursor:pointer; transition:all .2s; }
+    .btn-success:hover { background:#f5d080; transform:translateY(-1px); }
+    .empty-state { text-align:center; padding:5rem 2rem; color:var(--muted); }
+    .empty-state .icon { font-size:4rem; margin-bottom:1rem; }
+    .empty-state h2 { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--text); margin-bottom:.5rem; }
+    .empty-state p { margin-bottom:1.5rem; font-size:.9rem; }
+    .btn-outline { display:inline-block; padding:.75rem 1.5rem; border:1px solid var(--accent); color:var(--accent); border-radius:10px; text-decoration:none; font-weight:600; font-size:.9rem; transition:all .2s; }
+    .btn-outline:hover { background:var(--accent); color:#000; }
+
+    /* MODAL */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:200; padding:1rem; opacity:0; pointer-events:none; transition:opacity .3s; }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:2rem; max-width:520px; width:100%; max-height:90vh; overflow-y:auto; transform:scale(.95); transition:transform .3s; }
+    .modal-overlay.open .modal { transform:scale(1); }
+    .modal-title { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:.3rem; }
+    .modal-sub { color:var(--muted); font-size:.85rem; margin-bottom:1.5rem; }
+
+    /* STEPS */
+    .steps { display:flex; gap:.5rem; margin-bottom:1.5rem; }
+    .step { flex:1; padding:.5rem; text-align:center; border-radius:8px; font-size:.78rem; font-weight:600; background:var(--surface2); border:1px solid var(--border); color:var(--muted); transition:all .3s; }
+    .step.active { background:rgba(240,192,96,.15); border-color:var(--accent); color:var(--accent); }
+    .step.done { background:rgba(80,208,138,.1); border-color:var(--success); color:var(--success); }
+
+    .step-content { display:none; }
+    .step-content.active { display:block; animation:fadeUp .3s ease; }
+
+    /* FORM */
+    .form-group { display:flex; flex-direction:column; gap:.4rem; margin-bottom:1rem; }
+    .form-label { font-size:.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .form-input { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:.8rem 1rem; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:.95rem; outline:none; transition:border-color .2s; width:100%; }
+    .form-input:focus { border-color:var(--accent); }
+    .form-input::placeholder { color:var(--muted); }
+    .form-input.error { border-color:var(--danger); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+    .error-msg { color:var(--danger); font-size:.78rem; display:none; }
+
+    /* RECAP */
+    .modal-item { display:flex; justify-content:space-between; padding:.5rem 0; font-size:.9rem; border-bottom:1px solid var(--border); }
+    .modal-total { display:flex; justify-content:space-between; align-items:center; padding:1rem 0 .5rem; font-weight:700; }
+    .modal-total-amount { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--accent); }
+
+    .delivery-recap { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:1rem; margin:.75rem 0; }
+    .delivery-recap-title { font-size:.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.6rem; }
+    .delivery-recap-row { display:flex; gap:.6rem; font-size:.85rem; padding:.25rem 0; }
+    .delivery-recap-row span:last-child { color:var(--text); font-weight:500; }
+
+    .modal-btns { display:flex; gap:.75rem; margin-top:1.2rem; }
+    .btn-cancel { flex:1; padding:.8rem; background:var(--surface2); border:1px solid var(--border); color:var(--muted); border-radius:10px; font-family:'DM Sans',sans-serif; font-weight:600; cursor:pointer; transition:all .2s; }
+    .btn-cancel:hover { color:var(--text); border-color:var(--text); }
+    .btn-next { flex:2; padding:.8rem; background:var(--accent); border:none; color:#000; border-radius:10px; font-family:'DM Sans',sans-serif; font-weight:700; cursor:pointer; transition:all .2s; }
+    .btn-next:hover { background:#f5d080; }
+    .btn-confirm { flex:2; padding:.8rem; background:var(--success); border:none; color:#000; border-radius:10px; font-family:'DM Sans',sans-serif; font-weight:700; cursor:pointer; transition:all .2s; }
+    .btn-confirm:hover { background:#6de8a0; }
+    .btn-confirm:disabled { opacity:.6; cursor:not-allowed; }
+
+    #toast { position:fixed; bottom:2rem; right:2rem; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:.9rem 1.4rem; border-radius:12px; font-size:.9rem; font-weight:500; z-index:1000; opacity:0; transform:translateY(10px); transition:all .3s; pointer-events:none; }
+    #toast.show { opacity:1; transform:translateY(0); }
+
+    @media(max-width:500px) { .form-row { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">ShopEase</a>
+    <nav>
+      <a href="index.html">Produits</a>
+      <a href="orders.html">Commandes</a>
+      <a href="cart.html" class="active">🛒 Panier</a>
+      <a href="login.html">Login</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1 class="page-title">Votre Panier</h1>
+    <p class="page-sub" id="itemCount">Chargement...</p>
+    <div id="cartContent"></div>
+  </main>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2 class="modal-title">Passer la commande</h2>
+      <p class="modal-sub" id="modalSubTitle">Renseignez vos informations de livraison</p>
+
+      <div class="steps">
+        <div class="step active" id="step-ind-1">📦 Livraison</div>
+        <div class="step" id="step-ind-2">✅ Récapitulatif</div>
+      </div>
+
+      <!-- ÉTAPE 1 : INFORMATIONS DE LIVRAISON -->
+      <div class="step-content active" id="step-1">
+        <div class="form-group">
+          <label class="form-label">Nom complet *</label>
+          <input type="text" class="form-input" id="deliveryName" placeholder="Jean Dupont">
+          <span class="error-msg" id="errName">Veuillez entrer votre nom complet</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input type="email" class="form-input" id="deliveryEmail" placeholder="jean@email.com">
+            <span class="error-msg" id="errEmail">Email invalide</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Téléphone *</label>
+            <input type="tel" class="form-input" id="deliveryPhone" placeholder="+33 6 00 00 00 00">
+            <span class="error-msg" id="errPhone">Numéro de téléphone invalide</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Adresse *</label>
+          <input type="text" class="form-input" id="deliveryAddress" placeholder="12 rue de la Paix, Apt 3">
+          <span class="error-msg" id="errAddress">Veuillez entrer votre adresse</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Code postal *</label>
+            <input type="text" class="form-input" id="deliveryPostal" placeholder="75001">
+            <span class="error-msg" id="errPostal">Code postal invalide</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ville *</label>
+            <input type="text" class="form-input" id="deliveryCity" placeholder="Paris">
+            <span class="error-msg" id="errCity">Veuillez entrer votre ville</span>
+          </div>
+        </div>
+        <div class="modal-btns">
+          <button class="btn-cancel" id="cancelBtn">Annuler</button>
+          <button class="btn-next" id="nextBtn">Continuer →</button>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 2 : RÉCAPITULATIF -->
+      <div class="step-content" id="step-2">
+        <div id="modalItems"></div>
+        <div class="modal-total">
+          <span>Total</span>
+          <span class="modal-total-amount">€<span id="modalTotalAmount">0</span></span>
+        </div>
+        <div class="delivery-recap" id="deliveryRecap"></div>
+        <div class="modal-btns">
+          <button class="btn-cancel" id="backBtn">← Retour</button>
+          <button class="btn-confirm" id="confirmBtn">✅ Confirmer la commande</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const emojis = ["🛍️","📱","💻","👟","🎧","⌚","📷","🎮","💄","👜"];
+    let currentProducts = [];
+
+    function showToast(msg, success=true) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.borderColor = success ? "var(--success)" : "var(--danger)";
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2500);
+    }
+
+    // Pré-remplir le formulaire avec les infos du compte
+    function prefillForm() {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (user.name) document.getElementById("deliveryName").value = user.name;
+      if (user.email) document.getElementById("deliveryEmail").value = user.email;
+    }
+
+    // Navigation entre étapes
+    function goToStep(n) {
+      document.querySelectorAll(".step-content").forEach(s => s.classList.remove("active"));
+      document.getElementById("step-" + n).classList.add("active");
+      for (let i = 1; i <= 2; i++) {
+        const ind = document.getElementById("step-ind-" + i);
+        ind.className = "step";
+        if (i < n) ind.classList.add("done");
+        else if (i === n) ind.classList.add("active");
+      }
+    }
+
+    // Validation du formulaire
+    function validateForm() {
+      let valid = true;
+      const rules = [
+        { id: "deliveryName",    err: "errName",    test: v => v.trim().length >= 2 },
+        { id: "deliveryEmail",   err: "errEmail",   test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+        { id: "deliveryPhone",   err: "errPhone",   test: v => v.trim().length >= 8 },
+        { id: "deliveryAddress", err: "errAddress", test: v => v.trim().length >= 5 },
+        { id: "deliveryPostal",  err: "errPostal",  test: v => v.trim().length >= 4 },
+        { id: "deliveryCity",    err: "errCity",    test: v => v.trim().length >= 2 },
+      ];
+      rules.forEach(r => {
+        const input = document.getElementById(r.id);
+        const errEl = document.getElementById(r.err);
+        if (!r.test(input.value)) {
+          errEl.style.display = "block";
+          input.classList.add("error");
+          valid = false;
+        } else {
+          errEl.style.display = "none";
+          input.classList.remove("error");
+        }
+      });
+      return valid;
+    }
+
+    function getDeliveryInfo() {
+      return {
+        name:       document.getElementById("deliveryName").value.trim(),
+        email:      document.getElementById("deliveryEmail").value.trim(),
+        phone:      document.getElementById("deliveryPhone").value.trim(),
+        address:    document.getElementById("deliveryAddress").value.trim(),
+        postalCode: document.getElementById("deliveryPostal").value.trim(),
+        city:       document.getElementById("deliveryCity").value.trim(),
+      };
+    }
+
+    async function loadCart() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const content = document.getElementById("cartContent");
+      const itemCount = document.getElementById("itemCount");
+
+      if (cart.length === 0) {
+        itemCount.textContent = "0 article";
+        content.innerHTML = `<div class="empty-state"><div class="icon">🛒</div><h2>Votre panier est vide</h2><p>Ajoutez des produits pour commencer</p><a href="index.html" class="btn-outline">Voir les produits →</a></div>`;
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/products", { headers: { "Authorization": "Bearer " + token } });
+        currentProducts = await res.json();
+        let total = 0;
+        let html = "";
+
+        cart.forEach((id, i) => {
+          const p = currentProducts.find(pr => pr._id === id);
+          if (p) {
+            total += p.price;
+            html += `<div class="cart-item" style="animation-delay:${i*.07}s">
+              <div class="item-left">
+                <div class="item-icon">${emojis[i % emojis.length]}</div>
+                <div><div class="item-name">${p.name}</div><div class="item-price">€${p.price}</div></div>
+              </div>
+              <button class="btn-remove" data-id="${p._id}">🗑 Supprimer</button>
+            </div>`;
+          }
+        });
+
+        itemCount.textContent = `${cart.length} article${cart.length > 1 ? 's' : ''}`;
+        content.innerHTML = html + `
+          <div class="summary">
+            <div class="summary-row"><span style="color:var(--muted)">Sous-total</span><span>€${total}</span></div>
+            <div class="summary-row"><span style="color:var(--muted)">Livraison</span><span style="color:var(--success)">Gratuite ✓</span></div>
+            <div class="summary-row total"><span class="total-label">Total</span><span class="total-amount">€${total}</span></div>
+            <div class="btn-group">
+              <button class="btn-danger-sm" id="clearCart">🗑 Vider</button>
+              <button class="btn-success" id="checkoutBtn">Commander →</button>
+            </div>
+          </div>`;
+
+        document.querySelectorAll(".btn-remove").forEach(btn => {
+          btn.addEventListener("click", () => {
+            let c = JSON.parse(localStorage.getItem("cart")) || [];
+            c.splice(c.indexOf(btn.dataset.id), 1);
+            localStorage.setItem("cart", JSON.stringify(c));
+            showToast("Produit retiré", false);
+            loadCart();
+          });
+        });
+
+        document.getElementById("clearCart").addEventListener("click", () => {
+          if (confirm("Vider tout le panier ?")) { localStorage.removeItem("cart"); showToast("Panier vidé", false); loadCart(); }
+        });
+
+        document.getElementById("checkoutBtn").addEventListener("click", () => {
+          if (!token) { showToast("Connectez-vous d'abord", false); setTimeout(() => window.location.href = "login.html", 1500); return; }
+          prefillForm();
+          goToStep(1);
+          document.getElementById("modalOverlay").classList.add("open");
+        });
+
+      } catch(err) { content.innerHTML = "<p style='color:var(--danger)'>Erreur de chargement</p>"; }
+    }
+
+    // Bouton Continuer → Récap
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (!validateForm()) return;
+
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const delivery = getDeliveryInfo();
+
+      // Remplir les produits dans le récap
+      const modalItems = document.getElementById("modalItems");
+      modalItems.innerHTML = "";
+      let modalTotal = 0;
+      cart.forEach((id, i) => {
+        const p = currentProducts.find(pr => pr._id === id);
+        if (p) {
+          modalTotal += p.price;
+          const div = document.createElement("div");
+          div.className = "modal-item";
+          div.innerHTML = `<span>${emojis[i%emojis.length]} ${p.name}</span><span style="color:var(--accent);font-weight:600">€${p.price}</span>`;
+          modalItems.appendChild(div);
+        }
+      });
+      document.getElementById("modalTotalAmount").textContent = modalTotal;
+
+      // Récap livraison
+      document.getElementById("deliveryRecap").innerHTML = `
+        <div class="delivery-recap-title">📦 Adresse de livraison</div>
+        <div class="delivery-recap-row"><span>👤</span><span>${delivery.name}</span></div>
+        <div class="delivery-recap-row"><span>📧</span><span>${delivery.email}</span></div>
+        <div class="delivery-recap-row"><span>📞</span><span>${delivery.phone}</span></div>
+        <div class="delivery-recap-row"><span>🏠</span><span>${delivery.address}</span></div>
+        <div class="delivery-recap-row"><span>📮</span><span>${delivery.postalCode} ${delivery.city}</span></div>
+      `;
+
+      goToStep(2);
+    });
+
+    document.getElementById("backBtn").addEventListener("click", () => goToStep(1));
+    document.getElementById("cancelBtn").addEventListener("click", () => document.getElementById("modalOverlay").classList.remove("open"));
+
+    // Confirmer la commande
+    document.getElementById("confirmBtn").addEventListener("click", async () => {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const delivery = getDeliveryInfo();
+      const btn = document.getElementById("confirmBtn");
+      btn.textContent = "⏳ Envoi en cours...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+          body: JSON.stringify({ products: cart, delivery })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.removeItem("cart");
+          document.getElementById("modalOverlay").classList.remove("open");
+          showToast("🎉 Commande confirmée !");
+          setTimeout(() => window.location.href = "orders.html", 1500);
+        } else {
+          showToast(data.message || "Erreur", false);
+          btn.textContent = "✅ Confirmer la commande";
+          btn.disabled = false;
+        }
+      } catch(err) {
+        showToast("Erreur serveur", false);
+        btn.textContent = "✅ Confirmer la commande";
+        btn.disabled = false;
+      }
+    });
+
+    loadCart();
+  </script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopEase — Mon Profil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0f0f13; --surface:#1a1a24; --surface2:#22222f;
+      --border:#2e2e40; --accent:#f0c060; --accent2:#e8885a;
+      --text:#f0eff4; --muted:#8888aa; --success:#50d08a; --danger:#e85a5a;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+      background:radial-gradient(ellipse at 20% 20%,rgba(240,192,96,.04) 0%,transparent 60%),
+                 radial-gradient(ellipse at 80% 80%,rgba(232,136,90,.04) 0%,transparent 60%);}
+
+    /* HEADER */
+    header{position:sticky;top:0;z-index:100;background:rgba(15,15,19,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;}
+    .logo{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--accent);text-decoration:none;}
+    nav{display:flex;gap:.25rem;align-items:center;}
+    nav a{color:var(--muted);text-decoration:none;padding:.4rem .9rem;border-radius:8px;font-size:.9rem;font-weight:500;transition:all .2s;}
+    nav a:hover{color:var(--text);background:var(--surface2);}
+    nav a.active{color:var(--accent);}
+    .cart-btn{position:relative;background:var(--surface2);border:1px solid var(--border);color:var(--text)!important;}
+    #cartCount{position:absolute;top:-6px;right:-6px;background:var(--accent);color:#000;font-size:.65rem;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+
+    /* MAIN */
+    main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:2.5rem 2rem;}
+
+    /* PAGE TITLE */
+    .page-title{font-family:'Playfair Display',serif;font-size:2rem;margin-bottom:.5rem;}
+    .page-sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem;}
+
+    /* PROFILE HEADER CARD */
+    .profile-header{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:2rem;display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;animation:fadeUp .4s ease;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .avatar-circle{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;}
+    .profile-info{flex:1;}
+    .profile-name{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;}
+    .profile-email{color:var(--muted);font-size:.9rem;margin-top:.2rem;}
+    .profile-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .65rem;background:rgba(80,208,138,.1);border:1px solid rgba(80,208,138,.2);color:var(--success);border-radius:20px;font-size:.72rem;font-weight:700;margin-top:.5rem;}
+
+    /* STATS ROW */
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;}
+    .stat-mini{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.2rem;text-align:center;animation:fadeUp .5s ease both;}
+    .stat-mini-value{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--accent);}
+    .stat-mini-label{font-size:.75rem;color:var(--muted);margin-top:.2rem;}
+
+    /* TABS */
+    .tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:0;}
+    .tab{padding:.65rem 1.2rem;border-radius:10px 10px 0 0;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;border:none;background:none;color:var(--muted);margin-bottom:-1px;border-bottom:2px solid transparent;}
+    .tab:hover{color:var(--text);}
+    .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+    /* TAB CONTENT */
+    .tab-content{display:none;}
+    .tab-content.active{display:block;animation:fadeUp .3s ease;}
+
+    /* FORM */
+    .form-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:1.8rem;}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .form-group{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
+    .form-group.full{grid-column:1/-1;}
+    .form-label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+    .form-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:.8rem 1rem;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;width:100%;}
+    .form-input:focus{border-color:var(--accent);}
+    .form-input::placeholder{color:var(--muted);}
+    .form-input:disabled{opacity:.5;cursor:not-allowed;}
+
+    /* DIVIDER */
+    .divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
+
+    /* BUTTONS */
+    .btn{padding:.65rem 1.4rem;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;border:none;display:inline-flex;align-items:center;gap:.5rem;}
+    .btn-primary{background:var(--accent);color:#000;}
+    .btn-primary:hover{background:#f5d080;transform:translateY(-1px);}
+    .btn-danger{background:rgba(232,90,90,.1);border:1px solid rgba(232,90,90,.2);color:var(--danger);}
+    .btn-danger:hover{background:rgba(232,90,90,.2);}
+
+    /* ALERTS */
+    .alert{padding:.8rem 1rem;border-radius:10px;font-size:.85rem;margin-bottom:1rem;display:none;}
+    .alert-success{background:rgba(80,208,138,.1);border:1px solid rgba(80,208,138,.3);color:var(--success);}
+    .alert-error{background:rgba(232,90,90,.1);border:1px solid rgba(232,90,90,.3);color:var(--danger);}
+
+    /* ORDERS LIST */
+    .order-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.2rem 1.5rem;margin-bottom:1rem;transition:all .2s;cursor:pointer;animation:fadeUp .4s ease both;}
+    .order-card:hover{border-color:rgba(240,192,96,.3);transform:translateY(-2px);}
+    .order-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+    .order-id{font-size:.78rem;color:var(--muted);font-family:monospace;}
+    .order-date{font-size:.8rem;color:var(--muted);}
+    .order-total{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--accent);font-weight:700;}
+    .order-products{margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap;}
+    .order-product-chip{background:var(--surface2);border:1px solid var(--border);padding:.2rem .7rem;border-radius:20px;font-size:.75rem;color:var(--muted);}
+    .status{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .65rem;border-radius:20px;font-size:.72rem;font-weight:700;}
+    .status.confirmée{background:rgba(80,208,138,.1);border:1px solid rgba(80,208,138,.3);color:var(--success);}
+    .status.expédiée{background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:#60a5fa;}
+    .status.livrée{background:rgba(240,192,96,.1);border:1px solid rgba(240,192,96,.3);color:var(--accent);}
+    .status.annulée{background:rgba(232,90,90,.1);border:1px solid rgba(232,90,90,.3);color:var(--danger);}
+    .status.en-attente{background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.3);color:#fb923c;}
+
+    /* EMPTY */
+    .empty{text-align:center;padding:4rem 2rem;color:var(--muted);}
+    .empty .icon{font-size:3rem;margin-bottom:1rem;}
+    .empty h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text);margin-bottom:.5rem;}
+
+    /* PASSWORD STRENGTH */
+    .pwd-strength{margin-top:.4rem;height:4px;border-radius:2px;background:var(--surface2);overflow:hidden;}
+    .pwd-strength-fill{height:100%;border-radius:2px;transition:all .3s;}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:2rem;right:2rem;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:.9rem 1.4rem;border-radius:12px;font-size:.88rem;font-weight:500;z-index:1000;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
+    #toast.show{opacity:1;transform:translateY(0);}
+
+    /* SECTION TITLE */
+    .section-title{font-weight:700;font-size:1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+
+    @media(max-width:640px){
+      .form-grid{grid-template-columns:1fr;}
+      .stats-row{grid-template-columns:1fr;}
+      .profile-header{flex-direction:column;text-align:center;}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">ShopEase</a>
+  <nav>
+    <a href="index.html">Produits</a>
+    <a href="orders.html">Mes Commandes</a>
+    <a href="profile.html" class="active">Mon Profil</a>
+    <a href="cart.html" class="cart-btn">🛒 Panier <span id="cartCount">0</span></a>
+    <a href="login.html" id="authLink">Déconnexion</a>
+  </nav>
+</header>
+
+<main>
+  <!-- Si non connecté -->
+  <div id="notLoggedIn" style="display:none;text-align:center;padding:5rem 2rem">
+    <div style="font-size:3rem;margin-bottom:1rem">🔐</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:.5rem">Connexion requise</h2>
+    <p style="color:var(--muted);margin-bottom:1.5rem">Connectez-vous pour accéder à votre profil</p>
+    <a href="login.html" style="display:inline-block;padding:.75rem 2rem;background:var(--accent);color:#000;border-radius:12px;font-weight:700;text-decoration:none">Se connecter →</a>
+  </div>
+
+  <!-- Profil connecté -->
+  <div id="profileContent" style="display:none">
+
+    <!-- Header profil -->
+    <div class="profile-header">
+      <div class="avatar-circle" id="avatarCircle">👤</div>
+      <div class="profile-info">
+        <div class="profile-name" id="profileName">Chargement...</div>
+        <div class="profile-email" id="profileEmail"></div>
+        <div class="profile-badge">✅ Compte actif</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-mini" style="animation-delay:.05s">
+        <div class="stat-mini-value" id="statOrders">—</div>
+        <div class="stat-mini-label">Commandes passées</div>
+      </div>
+      <div class="stat-mini" style="animation-delay:.1s">
+        <div class="stat-mini-value" id="statSpent">—</div>
+        <div class="stat-mini-label">Total dépensé</div>
+      </div>
+      <div class="stat-mini" style="animation-delay:.15s">
+        <div class="stat-mini-value" id="statLast">—</div>
+        <div class="stat-mini-label">Dernière commande</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('infos',this)">✏️ Mes infos</button>
+      <button class="tab" onclick="switchTab('password',this)">🔑 Mot de passe</button>
+      <button class="tab" onclick="switchTab('orders',this)">📦 Mes commandes</button>
+    </div>
+
+    <!-- TAB: INFOS -->
+    <div class="tab-content active" id="tab-infos">
+      <div class="form-card">
+        <div class="section-title">✏️ Modifier mes informations</div>
+        <div class="alert alert-success" id="infoSuccess"></div>
+        <div class="alert alert-error" id="infoError"></div>
+        <form id="infoForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Prénom / Nom</label>
+              <input type="text" class="form-input" id="inputName" placeholder="Votre nom complet">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Adresse email</label>
+              <input type="email" class="form-input" id="inputEmail" placeholder="votre@email.com">
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end">
+            <button type="submit" class="btn btn-primary">💾 Enregistrer les modifications</button>
+          </div>
+        </form>
+
+        <hr class="divider">
+
+        <div class="section-title" style="color:var(--danger)">⚠️ Zone de danger</div>
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem">La déconnexion effacera votre session sur cet appareil.</p>
+        <button class="btn btn-danger" onclick="handleLogout()">🚪 Se déconnecter</button>
+      </div>
+    </div>
+
+    <!-- TAB: PASSWORD -->
+    <div class="tab-content" id="tab-password">
+      <div class="form-card">
+        <div class="section-title">🔑 Changer mon mot de passe</div>
+        <div class="alert alert-success" id="pwdSuccess"></div>
+        <div class="alert alert-error" id="pwdError"></div>
+        <form id="passwordForm">
+          <div class="form-group">
+            <label class="form-label">Mot de passe actuel</label>
+            <input type="password" class="form-input" id="currentPwd" placeholder="Votre mot de passe actuel" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nouveau mot de passe</label>
+            <input type="password" class="form-input" id="newPwd" placeholder="Minimum 6 caractères" required oninput="checkStrength(this.value)">
+            <div class="pwd-strength"><div class="pwd-strength-fill" id="pwdBar" style="width:0%;background:var(--danger)"></div></div>
+            <span id="pwdHint" style="font-size:.75rem;color:var(--muted);margin-top:.3rem;display:block"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirmer le nouveau mot de passe</label>
+            <input type="password" class="form-input" id="confirmPwd" placeholder="Répétez le mot de passe" required>
+          </div>
+          <div style="display:flex;justify-content:flex-end">
+            <button type="submit" class="btn btn-primary">🔑 Changer le mot de passe</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB: ORDERS -->
+    <div class="tab-content" id="tab-orders">
+      <div id="ordersList"></div>
+    </div>
+
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+  const token = localStorage.getItem("token");
+  let userData = null;
+
+  // Vérif connexion
+  if (!token) {
+    document.getElementById("notLoggedIn").style.display = "block";
+  } else {
+    document.getElementById("profileContent").style.display = "block";
+    loadProfile();
+  }
+
+  // Cart count
+  const cart = JSON.parse(localStorage.getItem("cart")||"[]");
+  document.getElementById("cartCount").textContent = cart.length;
+
+  // Auth link
+  document.getElementById("authLink").onclick = (e) => { e.preventDefault(); handleLogout(); };
+
+  function showToast(msg, ok=true) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.style.borderColor = ok ? "var(--success)" : "var(--danger)";
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2500);
+  }
+
+  function showAlert(id, msg, type="success") {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = `alert alert-${type}`;
+    el.style.display = "block";
+    setTimeout(() => el.style.display = "none", 4000);
+  }
+
+  function switchTab(name, btn) {
+    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.getElementById("tab-"+name).classList.add("active");
+    btn.classList.add("active");
+    if (name === "orders") renderOrders();
+  }
+
+  function getInitials(name) {
+    return name ? name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '?';
+  }
+
+  async function loadProfile() {
+    try {
+      const res = await fetch("/api/users/me", { headers: { Authorization:"Bearer "+token } });
+      if (res.status === 401) { localStorage.clear(); window.location.href = "login.html"; return; }
+      const data = await res.json();
+      userData = data;
+
+      const { user, stats } = data;
+
+      // Header
+      document.getElementById("profileName").textContent = user.name;
+      document.getElementById("profileEmail").textContent = user.email;
+      document.getElementById("avatarCircle").textContent = getInitials(user.name);
+
+      // Stats
+      document.getElementById("statOrders").textContent = stats.totalOrders;
+      document.getElementById("statSpent").textContent = "€"+stats.totalSpent;
+      document.getElementById("statLast").textContent = stats.lastOrder
+        ? new Date(stats.lastOrder.createdAt).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})
+        : "—";
+
+      // Remplir le formulaire
+      document.getElementById("inputName").value = user.name;
+      document.getElementById("inputEmail").value = user.email;
+
+    } catch(err) {
+      showToast("Erreur chargement profil", false);
+    }
+  }
+
+  // Modifier infos
+  document.getElementById("infoForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("inputName").value.trim();
+    const email = document.getElementById("inputEmail").value.trim();
+    if (!name || !email) return;
+
+    try {
+      const res = await fetch("/api/users/me", {
+        method:"PUT",
+        headers:{ Authorization:"Bearer "+token, "Content-Type":"application/json" },
+        body:JSON.stringify({name,email})
+      });
+      const data = await res.json();
+      if (!res.ok) { showAlert("infoError", data.message, "error"); return; }
+
+      // Mettre à jour localStorage
+      const user = JSON.parse(localStorage.getItem("user")||"{}");
+      user.name = name; user.email = email;
+      localStorage.setItem("user", JSON.stringify(user));
+
+      document.getElementById("profileName").textContent = name;
+      document.getElementById("profileEmail").textContent = email;
+      document.getElementById("avatarCircle").textContent = getInitials(name);
+      showAlert("infoSuccess", "✅ Profil mis à jour avec succès !");
+      showToast("✅ Profil mis à jour !");
+    } catch { showAlert("infoError", "Erreur serveur", "error"); }
+  });
+
+  // Indicateur force mot de passe
+  function checkStrength(pwd) {
+    const bar = document.getElementById("pwdBar");
+    const hint = document.getElementById("pwdHint");
+    let strength = 0;
+    if (pwd.length >= 6) strength++;
+    if (pwd.length >= 10) strength++;
+    if (/[A-Z]/.test(pwd)) strength++;
+    if (/[0-9]/.test(pwd)) strength++;
+    if (/[^A-Za-z0-9]/.test(pwd)) strength++;
+    const levels = [
+      {w:"0%",c:"var(--danger)",t:""},
+      {w:"20%",c:"var(--danger)",t:"Très faible"},
+      {w:"40%",c:"var(--orange)",t:"Faible"},
+      {w:"60%",c:"var(--accent)",t:"Moyen"},
+      {w:"80%",c:"#90d080",t:"Fort"},
+      {w:"100%",c:"var(--success)",t:"Très fort ✓"}
+    ];
+    const l = levels[strength];
+    bar.style.width = l.w;
+    bar.style.background = l.c;
+    hint.textContent = l.t;
+    hint.style.color = l.c;
+  }
+
+  // Changer mot de passe
+  document.getElementById("passwordForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const currentPassword = document.getElementById("currentPwd").value;
+    const newPassword = document.getElementById("newPwd").value;
+    const confirmPassword = document.getElementById("confirmPwd").value;
+
+    if (newPassword !== confirmPassword) {
+      showAlert("pwdError", "Les mots de passe ne correspondent pas", "error"); return;
+    }
+    if (newPassword.length < 6) {
+      showAlert("pwdError", "Le mot de passe doit faire au moins 6 caractères", "error"); return;
+    }
+
+    try {
+      const res = await fetch("/api/users/me/password", {
+        method:"PUT",
+        headers:{ Authorization:"Bearer "+token, "Content-Type":"application/json" },
+        body:JSON.stringify({currentPassword, newPassword})
+      });
+      const data = await res.json();
+      if (!res.ok) { showAlert("pwdError", data.message, "error"); return; }
+      showAlert("pwdSuccess", "✅ Mot de passe modifié avec succès !");
+      showToast("✅ Mot de passe changé !");
+      e.target.reset();
+      document.getElementById("pwdBar").style.width = "0%";
+      document.getElementById("pwdHint").textContent = "";
+    } catch { showAlert("pwdError", "Erreur serveur", "error"); }
+  });
+
+  // Render commandes
+  function renderOrders() {
+    const container = document.getElementById("ordersList");
+    if (!userData || !userData.stats) { container.innerHTML = `<div class="empty"><div class="icon">📦</div><h3>Chargement...</h3></div>`; return; }
+
+    // Recharger les commandes depuis l'API
+    fetch("/api/orders", { headers:{ Authorization:"Bearer "+token } })
+      .then(r => r.json())
+      .then(orders => {
+        if (!orders.length) {
+          container.innerHTML = `
+            <div class="empty">
+              <div class="icon">🛒</div>
+              <h3>Aucune commande</h3>
+              <p style="margin-bottom:1.2rem">Vous n'avez pas encore passé de commande</p>
+              <a href="index.html" style="display:inline-block;padding:.65rem 1.5rem;background:var(--accent);color:#000;border-radius:10px;font-weight:700;text-decoration:none">Découvrir la boutique →</a>
+            </div>`;
+          return;
+        }
+
+        const statusMap = {"en attente":"en-attente","confirmée":"confirmée","expédiée":"expédiée","livrée":"livrée","annulée":"annulée"};
+        const emojiMap = {"en attente":"⏳","confirmée":"✅","expédiée":"🚚","livrée":"📬","annulée":"❌"};
+
+        container.innerHTML = orders.map((o, i) => {
+          const products = (o.products||[]).map(p=>p.name||"Produit");
+          const status = o.status||"confirmée";
+          const date = new Date(o.createdAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+          return `
+            <div class="order-card" style="animation-delay:${i*0.05}s">
+              <div class="order-header">
+                <div>
+                  <div class="order-id">#${o._id.slice(-8).toUpperCase()}</div>
+                  <div class="order-date">${date}</div>
+                </div>
+                <div style="text-align:right">
+                  <div class="order-total">€${o.total}</div>
+                  <span class="status ${statusMap[status]||'confirmée'}">${emojiMap[status]||'✅'} ${status}</span>
+                </div>
+              </div>
+              <div class="order-products">
+                ${products.slice(0,3).map(n=>`<span class="order-product-chip">${n}</span>`).join('')}
+                ${products.length>3?`<span class="order-product-chip">+${products.length-3} autres</span>`:''}
+              </div>
+            </div>`;
+        }).join('');
+      });
+  }
+
+  function handleLogout() {
+    localStorage.clear();
+    window.location.href = "login.html";
+  }
+</script>
+</body>
+</html>

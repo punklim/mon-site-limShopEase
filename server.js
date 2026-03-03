@@ -21,4 +21,5 @@ app.use("/api/users", userRoutes);
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.listen(5000, () => console.log("Serveur lancé sur http://localhost:5000"));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Serveur lancé sur http://localhost:${PORT}`));

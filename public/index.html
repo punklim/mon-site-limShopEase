@@ -29,7 +29,6 @@
     .user-greeting{color:var(--muted);font-size:.85rem;padding:.4rem .9rem;}
     .user-greeting span{color:var(--accent);font-weight:600;}
 
-    /* HERO */
     .hero{position:relative;z-index:1;background:linear-gradient(135deg,rgba(240,192,96,.08) 0%,rgba(232,136,90,.05) 100%);border-bottom:1px solid var(--border);padding:3rem 2rem;text-align:center;}
     .hero-title{font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;margin-bottom:.75rem;background:linear-gradient(135deg,var(--text) 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
     .hero-sub{color:var(--muted);font-size:1rem;max-width:500px;margin:0 auto 1.5rem;}
@@ -39,7 +38,6 @@
 
     main{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:2.5rem 2rem;}
 
-    /* TOOLBAR */
     .toolbar{display:flex;gap:1rem;align-items:center;margin-bottom:2rem;flex-wrap:wrap;}
     .search-wrap{flex:1;min-width:200px;position:relative;}
     .search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:.7rem 1rem .7rem 2.5rem;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;}
@@ -50,14 +48,12 @@
     .sort-select:focus,.cat-select:focus{border-color:var(--accent);}
     .result-count{color:var(--muted);font-size:.85rem;white-space:nowrap;}
 
-    /* PRODUCT GRID */
     #productsList{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.5rem;}
 
     .product-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:all .3s cubic-bezier(.4,0,.2,1);animation:fadeUp .5s ease both;}
     .product-card:hover{transform:translateY(-5px);border-color:rgba(240,192,96,.4);box-shadow:0 16px 40px rgba(0,0,0,.3);}
     @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
-    /* IMAGE */
     .product-img{width:100%;height:200px;overflow:hidden;position:relative;background:var(--surface2);}
     .product-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
     .product-card:hover .product-img img{transform:scale(1.05);}
@@ -79,14 +75,12 @@
     .btn-add.added{background:var(--success);border-color:var(--success);color:#000;}
     .btn-add:disabled{background:rgba(136,136,170,.1);border-color:var(--muted);color:var(--muted);cursor:not-allowed;}
 
-    /* LOGIN BANNER */
     .login-banner{background:linear-gradient(135deg,rgba(240,192,96,.08),rgba(232,136,90,.05));border:1px solid rgba(240,192,96,.2);border-radius:16px;padding:1.2rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
     .login-banner p{color:var(--muted);font-size:.9rem;}
     .login-banner p span{color:var(--text);font-weight:600;}
     .btn-login-banner{padding:.5rem 1.2rem;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;}
     .btn-login-banner:hover{background:#f5d080;}
 
-    /* SKELETON */
     .skeleton{background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:20px;height:320px;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
@@ -96,6 +90,18 @@
 
     #toast{position:fixed;bottom:2rem;right:2rem;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:.9rem 1.4rem;border-radius:12px;font-size:.88rem;font-weight:500;z-index:1000;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;max-width:280px;}
     #toast.show{opacity:1;transform:translateY(0);}
+
+    /* ✅ WHATSAPP */
+    #whatsapp-btn{
+      position:fixed; bottom:28px; right:28px; z-index:9999;
+      background:#25D366; border-radius:50%; width:60px; height:60px;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 20px rgba(37,211,102,.5);
+      text-decoration:none; transition:transform .2s, box-shadow .2s;
+      animation:wabounce 2s infinite;
+    }
+    #whatsapp-btn:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(37,211,102,.7);animation:none;}
+    @keyframes wabounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
     @media(max-width:640px){.hero-title{font-size:2rem;}.toolbar{flex-direction:column;}}
   </style>
@@ -163,6 +169,14 @@
     </div>
   </main>
 
+  <!-- ✅ BOUTON WHATSAPP -->
+  <a href="https://wa.me/212691055597?text=Bonjour%2C%20je%20suis%20intéressé%20par%20un%20produit%20sur%20ShopEase%20!"
+     target="_blank" id="whatsapp-btn" title="Contactez-nous sur WhatsApp">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="white">
+      <path d="M16 0C7.163 0 0 7.163 0 16c0 2.824.736 5.476 2.027 7.785L0 32l8.447-2.01A15.93 15.93 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.073 22.824c-.334.94-1.946 1.793-2.678 1.908-.686.108-1.552.154-2.504-.158-.577-.19-1.317-.444-2.261-.87-3.978-1.72-6.578-5.72-6.778-5.985-.2-.265-1.63-2.17-1.63-4.14 0-1.97 1.033-2.94 1.4-3.34.366-.4.8-.5 1.066-.5.267 0 .534.003.767.014.247.012.578-.094.905.69.334.8 1.133 2.77 1.233 2.97.1.2.167.435.033.7-.133.267-.2.434-.4.667-.2.234-.42.522-.6.7-.2.2-.408.416-.175.816.233.4 1.033 1.7 2.217 2.75 1.522 1.356 2.806 1.776 3.206 1.976.4.2.633.167.867-.1.233-.267 1-.117 1.167.467.167.583.167 1.083-.167 2.023z"/>
+    </svg>
+  </a>
+
   <div id="toast"></div>
 
   <script>
@@ -171,7 +185,6 @@
     const emojis = ["🛍️","📱","💻","👟","🎧","⌚","📷","🎮","💄","👜","🕶️","👗","🏠","🎒","⚡"];
     let allProducts = [];
 
-    // Auth UI
     if (token && user.name) {
       document.getElementById("userGreeting").innerHTML = `Bonjour, <span>${user.name.split(' ')[0]}</span>`;
       document.getElementById("authLink").textContent = "Déconnexion";
@@ -199,8 +212,7 @@
       const sel = document.getElementById("catFilter");
       cats.forEach(c => {
         const opt = document.createElement("option");
-        opt.value = c;
-        opt.textContent = c;
+        opt.value = c; opt.textContent = c;
         sel.appendChild(opt);
       });
     }
@@ -268,10 +280,7 @@
       document.querySelectorAll(".btn-add[data-id]").forEach(btn => {
         btn.addEventListener("click", () => {
           let cart = JSON.parse(localStorage.getItem("cart")) || [];
-          if (cart.includes(btn.dataset.id)) {
-            window.location.href = "cart.html";
-            return;
-          }
+          if (cart.includes(btn.dataset.id)) { window.location.href = "cart.html"; return; }
           cart.push(btn.dataset.id);
           localStorage.setItem("cart", JSON.stringify(cart));
           btn.textContent = "✓ Voir panier";
@@ -288,8 +297,7 @@
       const sort = document.getElementById("sortSelect").value;
       const cat = document.getElementById("catFilter").value;
       let list = allProducts.filter(p =>
-        p.name.toLowerCase().includes(q) &&
-        (!cat || (p.category || "Général") === cat)
+        p.name.toLowerCase().includes(q) && (!cat || (p.category || "Général") === cat)
       );
       if (sort === "price-asc") list.sort((a,b) => a.price - b.price);
       else if (sort === "price-desc") list.sort((a,b) => b.price - a.price);

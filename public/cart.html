@@ -61,25 +61,18 @@
     .empty-state p { margin-bottom:1.5rem; font-size:.9rem; }
     .btn-outline { display:inline-block; padding:.75rem 1.5rem; border:1px solid var(--accent); color:var(--accent); border-radius:10px; text-decoration:none; font-weight:600; font-size:.9rem; transition:all .2s; }
     .btn-outline:hover { background:var(--accent); color:#000; }
-
-    /* MODAL */
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:200; padding:1rem; opacity:0; pointer-events:none; transition:opacity .3s; }
     .modal-overlay.open { opacity:1; pointer-events:all; }
     .modal { background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:2rem; max-width:520px; width:100%; max-height:90vh; overflow-y:auto; transform:scale(.95); transition:transform .3s; }
     .modal-overlay.open .modal { transform:scale(1); }
     .modal-title { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:.3rem; }
     .modal-sub { color:var(--muted); font-size:.85rem; margin-bottom:1.5rem; }
-
-    /* STEPS */
     .steps { display:flex; gap:.5rem; margin-bottom:1.5rem; }
     .step { flex:1; padding:.5rem; text-align:center; border-radius:8px; font-size:.78rem; font-weight:600; background:var(--surface2); border:1px solid var(--border); color:var(--muted); transition:all .3s; }
     .step.active { background:rgba(240,192,96,.15); border-color:var(--accent); color:var(--accent); }
     .step.done { background:rgba(80,208,138,.1); border-color:var(--success); color:var(--success); }
-
     .step-content { display:none; }
     .step-content.active { display:block; animation:fadeUp .3s ease; }
-
-    /* FORM */
     .form-group { display:flex; flex-direction:column; gap:.4rem; margin-bottom:1rem; }
     .form-label { font-size:.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
     .form-input { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:.8rem 1rem; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:.95rem; outline:none; transition:border-color .2s; width:100%; }
@@ -88,17 +81,13 @@
     .form-input.error { border-color:var(--danger); }
     .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
     .error-msg { color:var(--danger); font-size:.78rem; display:none; }
-
-    /* RECAP */
     .modal-item { display:flex; justify-content:space-between; padding:.5rem 0; font-size:.9rem; border-bottom:1px solid var(--border); }
     .modal-total { display:flex; justify-content:space-between; align-items:center; padding:1rem 0 .5rem; font-weight:700; }
     .modal-total-amount { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--accent); }
-
     .delivery-recap { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:1rem; margin:.75rem 0; }
     .delivery-recap-title { font-size:.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.6rem; }
     .delivery-recap-row { display:flex; gap:.6rem; font-size:.85rem; padding:.25rem 0; }
     .delivery-recap-row span:last-child { color:var(--text); font-weight:500; }
-
     .modal-btns { display:flex; gap:.75rem; margin-top:1.2rem; }
     .btn-cancel { flex:1; padding:.8rem; background:var(--surface2); border:1px solid var(--border); color:var(--muted); border-radius:10px; font-family:'DM Sans',sans-serif; font-weight:600; cursor:pointer; transition:all .2s; }
     .btn-cancel:hover { color:var(--text); border-color:var(--text); }
@@ -107,9 +96,20 @@
     .btn-confirm { flex:2; padding:.8rem; background:var(--success); border:none; color:#000; border-radius:10px; font-family:'DM Sans',sans-serif; font-weight:700; cursor:pointer; transition:all .2s; }
     .btn-confirm:hover { background:#6de8a0; }
     .btn-confirm:disabled { opacity:.6; cursor:not-allowed; }
-
     #toast { position:fixed; bottom:2rem; right:2rem; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:.9rem 1.4rem; border-radius:12px; font-size:.9rem; font-weight:500; z-index:1000; opacity:0; transform:translateY(10px); transition:all .3s; pointer-events:none; }
     #toast.show { opacity:1; transform:translateY(0); }
+
+    /* WHATSAPP */
+    #whatsapp-btn {
+      position:fixed; bottom:28px; right:28px; z-index:9999;
+      background:#25D366; border-radius:50%; width:60px; height:60px;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 20px rgba(37,211,102,.5);
+      text-decoration:none; transition:transform .2s, box-shadow .2s;
+      animation:wabounce 2s infinite;
+    }
+    #whatsapp-btn:hover { transform:scale(1.1); box-shadow:0 6px 28px rgba(37,211,102,.7); animation:none; }
+    @keyframes wabounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 
     @media(max-width:500px) { .form-row { grid-template-columns:1fr; } }
   </style>
@@ -135,14 +135,13 @@
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <h2 class="modal-title">Passer la commande</h2>
-      <p class="modal-sub" id="modalSubTitle">Renseignez vos informations de livraison</p>
-
+      <p class="modal-sub">Renseignez vos informations de livraison</p>
       <div class="steps">
         <div class="step active" id="step-ind-1">📦 Livraison</div>
         <div class="step" id="step-ind-2">✅ Récapitulatif</div>
       </div>
 
-      <!-- ÉTAPE 1 : INFORMATIONS DE LIVRAISON -->
+      <!-- ÉTAPE 1 -->
       <div class="step-content active" id="step-1">
         <div class="form-group">
           <label class="form-label">Nom complet *</label>
@@ -158,12 +157,12 @@
           <div class="form-group">
             <label class="form-label">Téléphone *</label>
             <input type="tel" class="form-input" id="deliveryPhone" placeholder="+33 6 00 00 00 00">
-            <span class="error-msg" id="errPhone">Numéro de téléphone invalide</span>
+            <span class="error-msg" id="errPhone">Numéro invalide</span>
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">Adresse *</label>
-          <input type="text" class="form-input" id="deliveryAddress" placeholder="12 rue de la Paix, Apt 3">
+          <input type="text" class="form-input" id="deliveryAddress" placeholder="12 rue de la Paix">
           <span class="error-msg" id="errAddress">Veuillez entrer votre adresse</span>
         </div>
         <div class="form-row">
@@ -184,7 +183,7 @@
         </div>
       </div>
 
-      <!-- ÉTAPE 2 : RÉCAPITULATIF -->
+      <!-- ÉTAPE 2 -->
       <div class="step-content" id="step-2">
         <div id="modalItems"></div>
         <div class="modal-total">
@@ -199,6 +198,14 @@
       </div>
     </div>
   </div>
+
+  <!-- BOUTON WHATSAPP -->
+  <a href="https://wa.me/212691055597?text=Bonjour%2C%20je%20suis%20intéressé%20par%20un%20produit%20sur%20ShopEase%20!"
+     target="_blank" id="whatsapp-btn" title="Contactez-nous sur WhatsApp">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="white">
+      <path d="M16 0C7.163 0 0 7.163 0 16c0 2.824.736 5.476 2.027 7.785L0 32l8.447-2.01A15.93 15.93 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.073 22.824c-.334.94-1.946 1.793-2.678 1.908-.686.108-1.552.154-2.504-.158-.577-.19-1.317-.444-2.261-.87-3.978-1.72-6.578-5.72-6.778-5.985-.2-.265-1.63-2.17-1.63-4.14 0-1.97 1.033-2.94 1.4-3.34.366-.4.8-.5 1.066-.5.267 0 .534.003.767.014.247.012.578-.094.905.69.334.8 1.133 2.77 1.233 2.97.1.2.167.435.033.7-.133.267-.2.434-.4.667-.2.234-.42.522-.6.7-.2.2-.408.416-.175.816.233.4 1.033 1.7 2.217 2.75 1.522 1.356 2.806 1.776 3.206 1.976.4.2.633.167.867-.1.233-.267 1-.117 1.167.467.167.583.167 1.083-.167 2.023z"/>
+    </svg>
+  </a>
 
   <div id="toast"></div>
 
@@ -215,14 +222,12 @@
       setTimeout(() => t.classList.remove("show"), 2500);
     }
 
-    // Pré-remplir le formulaire avec les infos du compte
     function prefillForm() {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-      if (user.name) document.getElementById("deliveryName").value = user.name;
+      if (user.name)  document.getElementById("deliveryName").value  = user.name;
       if (user.email) document.getElementById("deliveryEmail").value = user.email;
     }
 
-    // Navigation entre étapes
     function goToStep(n) {
       document.querySelectorAll(".step-content").forEach(s => s.classList.remove("active"));
       document.getElementById("step-" + n).classList.add("active");
@@ -234,27 +239,23 @@
       }
     }
 
-    // Validation du formulaire
     function validateForm() {
       let valid = true;
       const rules = [
-        { id: "deliveryName",    err: "errName",    test: v => v.trim().length >= 2 },
-        { id: "deliveryEmail",   err: "errEmail",   test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
-        { id: "deliveryPhone",   err: "errPhone",   test: v => v.trim().length >= 8 },
-        { id: "deliveryAddress", err: "errAddress", test: v => v.trim().length >= 5 },
-        { id: "deliveryPostal",  err: "errPostal",  test: v => v.trim().length >= 4 },
-        { id: "deliveryCity",    err: "errCity",    test: v => v.trim().length >= 2 },
+        { id:"deliveryName",    err:"errName",    test: v => v.trim().length >= 2 },
+        { id:"deliveryEmail",   err:"errEmail",   test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+        { id:"deliveryPhone",   err:"errPhone",   test: v => v.trim().length >= 8 },
+        { id:"deliveryAddress", err:"errAddress", test: v => v.trim().length >= 5 },
+        { id:"deliveryPostal",  err:"errPostal",  test: v => v.trim().length >= 4 },
+        { id:"deliveryCity",    err:"errCity",    test: v => v.trim().length >= 2 },
       ];
       rules.forEach(r => {
         const input = document.getElementById(r.id);
         const errEl = document.getElementById(r.err);
         if (!r.test(input.value)) {
-          errEl.style.display = "block";
-          input.classList.add("error");
-          valid = false;
+          errEl.style.display = "block"; input.classList.add("error"); valid = false;
         } else {
-          errEl.style.display = "none";
-          input.classList.remove("error");
+          errEl.style.display = "none"; input.classList.remove("error");
         }
       });
       return valid;
@@ -273,7 +274,7 @@
 
     async function loadCart() {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const content = document.getElementById("cartContent");
+      const content   = document.getElementById("cartContent");
       const itemCount = document.getElementById("itemCount");
 
       if (cart.length === 0) {
@@ -285,8 +286,7 @@
       try {
         const res = await fetch("/api/products", { headers: { "Authorization": "Bearer " + token } });
         currentProducts = await res.json();
-        let total = 0;
-        let html = "";
+        let total = 0, html = "";
 
         cart.forEach((id, i) => {
           const p = currentProducts.find(pr => pr._id === id);
@@ -338,14 +338,10 @@
       } catch(err) { content.innerHTML = "<p style='color:var(--danger)'>Erreur de chargement</p>"; }
     }
 
-    // Bouton Continuer → Récap
     document.getElementById("nextBtn").addEventListener("click", () => {
       if (!validateForm()) return;
-
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
       const delivery = getDeliveryInfo();
-
-      // Remplir les produits dans le récap
       const modalItems = document.getElementById("modalItems");
       modalItems.innerHTML = "";
       let modalTotal = 0;
@@ -360,24 +356,20 @@
         }
       });
       document.getElementById("modalTotalAmount").textContent = modalTotal;
-
-      // Récap livraison
       document.getElementById("deliveryRecap").innerHTML = `
         <div class="delivery-recap-title">📦 Adresse de livraison</div>
         <div class="delivery-recap-row"><span>👤</span><span>${delivery.name}</span></div>
         <div class="delivery-recap-row"><span>📧</span><span>${delivery.email}</span></div>
         <div class="delivery-recap-row"><span>📞</span><span>${delivery.phone}</span></div>
         <div class="delivery-recap-row"><span>🏠</span><span>${delivery.address}</span></div>
-        <div class="delivery-recap-row"><span>📮</span><span>${delivery.postalCode} ${delivery.city}</span></div>
-      `;
-
+        <div class="delivery-recap-row"><span>📮</span><span>${delivery.postalCode} ${delivery.city}</span></div>`;
       goToStep(2);
     });
 
     document.getElementById("backBtn").addEventListener("click", () => goToStep(1));
     document.getElementById("cancelBtn").addEventListener("click", () => document.getElementById("modalOverlay").classList.remove("open"));
 
-    // Confirmer la commande
+    // ✅ CONFIRMER LA COMMANDE — version originale sans Stripe
     document.getElementById("confirmBtn").addEventListener("click", async () => {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
       const delivery = getDeliveryInfo();

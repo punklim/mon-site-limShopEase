@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 
 const app = express();
-
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connecté"))
   .catch(err => console.log(err));

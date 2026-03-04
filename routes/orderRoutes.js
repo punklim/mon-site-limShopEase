@@ -1,19 +1,20 @@
-const express = require("express");
-const router = express.Router();
-const Order = require("../models/Order");
-const Product = require("../models/Product");
+const express  = require("express");
+const router   = express.Router();
+const Order    = require("../models/Order");
+const Product  = require("../models/Product");
 const { authenticateJWT } = require("../middleware/authMiddleware");
 
-// POST créer une commande + diminuer le stock
+// ─────────────────────────────────────────────────────────────
+// POST / — Créer une commande + diminuer le stock
+// (utilisé pour les commandes sans Stripe, conservé tel quel)
+// ─────────────────────────────────────────────────────────────
 router.post("/", authenticateJWT, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { products, delivery } = req.body; // ← ajout de delivery
+    const { products, delivery } = req.body;
 
-    // Récupérer les produits
     const orderProducts = await Product.find({ _id: { $in: products } });
 
-    // Vérifier le stock pour chaque produit
     for (const product of orderProducts) {
       if (product.stock !== undefined && product.stock <= 0) {
         return res.status(400).json({
@@ -22,24 +23,19 @@ router.post("/", authenticateJWT, async (req, res) => {
       }
     }
 
-    // Calculer le total
     const total = orderProducts.reduce((sum, p) => sum + p.price, 0);
 
-    // Créer la commande avec les infos de livraison
     const order = await Order.create({
-      user: userId,
+      user:     userId,
       products: orderProducts.map(p => p._id),
       total,
-      status: "confirmée",
-      delivery // ← sauvegarde des infos de livraison
+      status:   "confirmée",
+      delivery
     });
 
-    // Diminuer le stock de chaque produit commandé
     for (const product of orderProducts) {
       if (product.stock !== undefined && product.stock > 0) {
-        await Product.findByIdAndUpdate(product._id, {
-          $inc: { stock: -1 }
-        });
+        await Product.findByIdAndUpdate(product._id, { $inc: { stock: -1 } });
       }
     }
 
@@ -50,18 +46,39 @@ router.post("/", authenticateJWT, async (req, res) => {
   }
 });
 
-// GET commandes (admin = toutes, user = les siennes)
+// ─────────────────────────────────────────────────────────────
+// GET /admin/all — Toutes les commandes pour le dashboard admin
+// ⚠️ DOIT être déclaré AVANT GET /:id pour éviter les conflits
+// ─────────────────────────────────────────────────────────────
+router.get("/admin/all", authenticateJWT, async (req, res) => {
+  try {
+    if (!req.user.isAdmin) return res.status(403).json({ message: "Accès refusé" });
+
+    const orders = await Order.find()
+      .populate("user", "name email")
+      .populate("products.product", "name image category")
+      .sort({ createdAt: -1 });
+
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur récupération commandes admin" });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// GET / — Commandes (admin = toutes, user = les siennes)
+// ─────────────────────────────────────────────────────────────
 router.get("/", authenticateJWT, async (req, res) => {
   try {
     let orders;
     if (req.user.isAdmin) {
       orders = await Order.find()
-        .populate("products")
         .populate("user", "name email")
+        .populate("products.product", "name image price")
         .sort({ createdAt: -1 });
     } else {
       orders = await Order.find({ user: req.user.id })
-        .populate("products")
+        .populate("products.product", "name image price")
         .sort({ createdAt: -1 });
     }
     res.json(orders);
@@ -70,26 +87,58 @@ router.get("/", authenticateJWT, async (req, res) => {
   }
 });
 
-// PUT mettre à jour le statut (admin uniquement)
+// ─────────────────────────────────────────────────────────────
+// PATCH /:id/status — Mettre à jour le statut de livraison
+// Utilisé par le dashboard admin (select dans le tableau)
+// ─────────────────────────────────────────────────────────────
+router.patch("/:id/status", authenticateJWT, async (req, res) => {
+  try {
+    if (!req.user.isAdmin) return res.status(403).json({ message: "Accès refusé" });
+
+    const { status, deliveryStatus } = req.body;
+    const updateFields = {};
+    if (status)         updateFields.status         = status;
+    if (deliveryStatus) updateFields.deliveryStatus = deliveryStatus;
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      updateFields,
+      { new: true }
+    ).populate("user", "name email");
+
+    if (!order) return res.status(404).json({ message: "Commande non trouvée" });
+
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur mise à jour statut" });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// PUT /:id/status — Ancienne route (conservée pour compatibilité)
+// Gère aussi la remise en stock si annulée
+// ─────────────────────────────────────────────────────────────
 router.put("/:id/status", authenticateJWT, async (req, res) => {
   try {
     if (!req.user.isAdmin) return res.status(403).json({ message: "Accès refusé" });
+
     const { status } = req.body;
 
     const order = await Order.findByIdAndUpdate(
       req.params.id,
       { status },
       { new: true }
-    ).populate("products").populate("user", "name email");
+    ).populate("products.product").populate("user", "name email");
 
     if (!order) return res.status(404).json({ message: "Commande non trouvée" });
 
     // Si commande annulée → remettre le stock
     if (status === "annulée") {
-      for (const product of order.products) {
-        await Product.findByIdAndUpdate(product._id, {
-          $inc: { stock: 1 }
-        });
+      for (const item of order.products) {
+        const productId = item.product?._id || item.product;
+        if (productId) {
+          await Product.findByIdAndUpdate(productId, { $inc: { stock: 1 } });
+        }
       }
     }
 
@@ -99,7 +148,9 @@ router.put("/:id/status", authenticateJWT, async (req, res) => {
   }
 });
 
-// DELETE supprimer une commande (admin uniquement)
+// ─────────────────────────────────────────────────────────────
+// DELETE /:id — Supprimer une commande (admin uniquement)
+// ─────────────────────────────────────────────────────────────
 router.delete("/:id", authenticateJWT, async (req, res) => {
   try {
     if (!req.user.isAdmin) return res.status(403).json({ message: "Accès refusé" });

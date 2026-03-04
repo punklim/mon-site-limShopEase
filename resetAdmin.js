@@ -1,20 +1,37 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config();
+require("dotenv").config();
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const User = require("./models/User");
 
-const MONGODB_URI = process.env.MONGODB_URI;
+async function resetAdmin() {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
 
-mongoose.connect(MONGODB_URI)
-  .then(async () => {
-    console.log("Connecté à MongoDB Atlas");
+    console.log("✅ MongoDB connecté");
+    console.log("📌 Base utilisée :", mongoose.connection.db.databaseName);
 
-    // Schéma et modèle pour les utilisateurs/admin
-    const userSchema = new mongoose.Schema({ username: String, password: String });
-    const User = mongoose.model("User", userSchema);
+    console.log("🗑 Suppression de tous les users...");
+    await User.deleteMany({});
 
-    // Créer l'admin
-    await User.create({ username: "admin", password: "1234" });
-    console.log("Admin créé, base et collection générées !");
-    process.exit(0);
-  })
-  .catch(err => console.error(err));
+    const hashed = await bcrypt.hash("admin123", 10);
+
+    const admin = await User.create({
+      name: "Admin",
+      email: "admin@admin.com",
+      password: hashed,
+      isAdmin: true
+    });
+
+    console.log("👤 Admin créé :", admin.email);
+
+    const users = await User.find({});
+    console.log("📊 Users actuels :", users);
+
+    process.exit();
+  } catch (err) {
+    console.error("❌ ERREUR :", err);
+    process.exit(1);
+  }
+}
+
+resetAdmin();

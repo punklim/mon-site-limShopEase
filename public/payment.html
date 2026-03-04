@@ -27,29 +27,16 @@
 
     main { max-width: 900px; margin: 3rem auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 380px; gap: 2rem; }
 
-    /* ── Récap commande ── */
-    .order-summary {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.8rem;
-    }
+    .order-summary { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.8rem; }
     .order-summary h2 { font-family: 'Playfair Display', serif; color: var(--accent); margin-bottom: 1.2rem; font-size: 1.2rem; }
     .summary-item { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid var(--border); font-size: .9rem; }
     .summary-total { display: flex; justify-content: space-between; padding: 1rem 0 0; font-weight: 700; font-size: 1.1rem; color: var(--accent); }
 
-    /* ── Panneau paiement ── */
-    .payment-panel {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.8rem;
-      position: sticky; top: 80px; height: fit-content;
-    }
+    .payment-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.8rem; position: sticky; top: 80px; height: fit-content; }
     .payment-panel h2 { font-family: 'Playfair Display', serif; color: var(--accent); margin-bottom: 1.5rem; font-size: 1.2rem; }
 
-    /* Options */
     .payment-options { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1.8rem; }
-    .payment-option {
-      display: flex; align-items: center; gap: 1rem;
-      background: var(--surface2); border: 2px solid var(--border);
-      border-radius: 12px; padding: 1rem 1.2rem; cursor: pointer;
-      transition: all .2s;
-    }
+    .payment-option { display: flex; align-items: center; gap: 1rem; background: var(--surface2); border: 2px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; cursor: pointer; transition: all .2s; }
     .payment-option:hover { border-color: var(--muted); }
     .payment-option.active { border-color: var(--accent); background: rgba(240,200,96,.06); }
     .payment-option input[type="radio"] { accent-color: var(--accent); width: 18px; height: 18px; }
@@ -57,63 +44,31 @@
     .option-info { flex: 1; }
     .option-label { font-weight: 600; font-size: .95rem; }
     .option-desc { font-size: .78rem; color: var(--muted); margin-top: 2px; }
-    .option-badge {
-      font-size: .65rem; font-weight: 700; padding: 2px 8px;
-      border-radius: 20px; background: rgba(240,200,96,.15); color: var(--accent); border: 1px solid var(--accent);
-    }
+    .option-badge { font-size: .65rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: rgba(240,200,96,.15); color: var(--accent); border: 1px solid var(--accent); }
 
-    /* Formulaires */
     .payment-form { display: none; margin-bottom: 1.5rem; }
     .payment-form.visible { display: block; }
 
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: .4rem; }
-    .form-group input {
-      width: 100%; background: var(--bg); border: 1px solid var(--border);
-      border-radius: 8px; padding: .7rem 1rem; color: var(--text);
-      font-family: 'DM Sans', sans-serif; font-size: .9rem; transition: border-color .2s;
-    }
+    .form-group input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .7rem 1rem; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: .9rem; transition: border-color .2s; }
     .form-group input:focus { outline: none; border-color: var(--accent); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-    /* Stripe Element */
-    #card-element {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 8px; padding: .85rem 1rem;
-    }
+    #card-element { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .85rem 1rem; }
     #card-errors { color: var(--danger); font-size: .82rem; margin-top: .5rem; min-height: 1rem; }
-
-    /* PayPal container */
     #paypal-button-container { min-height: 50px; }
 
-    /* Info boxes */
-    .info-box {
-      background: rgba(80,208,138,.05); border: 1px solid rgba(80,208,138,.2);
-      border-radius: 10px; padding: 1rem 1.2rem; font-size: .84rem; color: var(--muted);
-      line-height: 1.6;
-    }
+    .info-box { background: rgba(80,208,138,.05); border: 1px solid rgba(80,208,138,.2); border-radius: 10px; padding: 1rem 1.2rem; font-size: .84rem; color: var(--muted); line-height: 1.6; }
     .info-box strong { color: var(--success); display: block; margin-bottom: .3rem; }
     .info-box .iban { font-family: monospace; color: var(--text); font-size: .82rem; letter-spacing: .5px; }
 
-    /* Bouton */
-    .pay-btn {
-      width: 100%; padding: 1rem; border: none; border-radius: 12px;
-      background: var(--accent); color: #000; font-weight: 700; font-size: 1rem;
-      cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif;
-      display: flex; align-items: center; justify-content: center; gap: .5rem;
-    }
+    .pay-btn { width: 100%; padding: 1rem; border: none; border-radius: 12px; background: var(--accent); color: #000; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: .5rem; }
     .pay-btn:hover { background: #f5d478; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(240,200,96,.3); }
     .pay-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
-    /* Sécurité */
     .security-note { display: flex; align-items: center; gap: .5rem; font-size: .75rem; color: var(--muted); margin-top: 1rem; justify-content: center; }
 
-    /* Success / Error */
-    .toast {
-      position: fixed; top: 1.5rem; right: 1.5rem; z-index: 999;
-      padding: 1rem 1.5rem; border-radius: 12px; font-weight: 600;
-      display: none; animation: slideIn .3s ease;
-    }
+    .toast { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 999; padding: 1rem 1.5rem; border-radius: 12px; font-weight: 600; display: none; animation: slideIn .3s ease; }
     .toast.success { background: rgba(80,208,138,.15); border: 1px solid var(--success); color: var(--success); display: block; }
     .toast.error { background: rgba(232,90,90,.15); border: 1px solid var(--danger); color: var(--danger); display: block; }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -131,11 +86,10 @@
 </header>
 
 <main>
-  <!-- ── Récapitulatif ── -->
+  <!-- Récapitulatif -->
   <div class="order-summary">
     <h2>📦 Récapitulatif de commande</h2>
     <div id="order-items">
-      <!-- Rempli dynamiquement via JS -->
       <div class="summary-item"><span>Chargement...</span></div>
     </div>
     <div class="summary-total">
@@ -148,12 +102,11 @@
     </div>
   </div>
 
-  <!-- ── Paiement ── -->
+  <!-- Paiement -->
   <div class="payment-panel">
     <h2>💳 Choisir un mode de paiement</h2>
 
     <div class="payment-options">
-
       <label class="payment-option active" onclick="selectMethod('card')">
         <input type="radio" name="payment" value="card" checked>
         <span class="option-icon">💳</span>
@@ -190,10 +143,9 @@
           <div class="option-desc">Paiement par virement SEPA</div>
         </div>
       </label>
-
     </div>
 
-    <!-- Formulaire Carte (Stripe) -->
+    <!-- Carte Stripe -->
     <div id="form-card" class="payment-form visible">
       <div class="form-group">
         <label>Titulaire de la carte</label>
@@ -209,7 +161,7 @@
       </button>
     </div>
 
-    <!-- Formulaire PayPal -->
+    <!-- PayPal -->
     <div id="form-paypal" class="payment-form">
       <div style="margin-bottom:1rem;font-size:.85rem;color:var(--muted);">
         Vous serez redirigé vers PayPal pour finaliser le paiement en toute sécurité.
@@ -217,16 +169,16 @@
       <div id="paypal-button-container"></div>
     </div>
 
-    <!-- Cash à la livraison -->
+    <!-- Cash -->
     <div id="form-cash" class="payment-form">
       <div class="info-box" style="margin-bottom:1.2rem;">
         <strong>🚚 Comment ça marche ?</strong>
-        Vous payez en espèces directement au livreur lors de la réception de votre colis. Assurez-vous d'avoir le montant exact.
+        Vous payez en espèces directement au livreur lors de la réception de votre colis.
       </div>
       <button class="pay-btn" onclick="payCash()">✅ Confirmer la commande</button>
     </div>
 
-    <!-- Virement bancaire -->
+    <!-- Virement -->
     <div id="form-bank" class="payment-form">
       <div class="info-box" style="margin-bottom:1.2rem;">
         <strong>🏦 Coordonnées bancaires</strong>
@@ -248,32 +200,31 @@
 </main>
 
 <script>
-  // ── Données commande (récupérées depuis localStorage ou URL params) ──────────
-  const urlParams = new URLSearchParams(window.location.search);
-  const ORDER_ID = urlParams.get('orderId') || 'CMD-' + Date.now();
-  const token = localStorage.getItem('token');
+  // ── Récupération des données du panier ──────────────────────────────────────
+  const token        = localStorage.getItem('token');
+  const cartItems    = JSON.parse(localStorage.getItem('cartItems')   || '[]');
+  const orderTotal   = parseFloat(localStorage.getItem('cartTotal')   || '0');
+  const deliveryAddr = localStorage.getItem('deliveryAddress')        || '—';
+  const deliveryInfo = JSON.parse(localStorage.getItem('deliveryInfo')|| '{}');
 
-  // Exemple items – à remplacer par un appel API réel
-  const orderItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-  const orderTotal = parseFloat(localStorage.getItem('cartTotal') || '0');
-  const deliveryAddress = localStorage.getItem('deliveryAddress') || '—';
+  // Convertir au format attendu par le modèle Order
+  const products = cartItems.map(i => ({ name: i.name, price: i.price, quantity: i.qty || 1 }));
 
   // Remplir le récapitulatif
   const itemsEl = document.getElementById('order-items');
-  if (orderItems.length) {
-    itemsEl.innerHTML = orderItems.map(i =>
-      `<div class="summary-item"><span>${i.name} × ${i.qty}</span><span>${(i.price * i.qty).toFixed(2)} €</span></div>`
-    ).join('') +
-    `<div class="summary-item"><span>Livraison</span><span style="color:var(--success)">Gratuite</span></div>`;
+  if (cartItems.length) {
+    itemsEl.innerHTML = cartItems.map(i =>
+      `<div class="summary-item"><span>${i.name} × ${i.qty || 1}</span><span>${(i.price * (i.qty||1)).toFixed(2)} €</span></div>`
+    ).join('') + `<div class="summary-item"><span>Livraison</span><span style="color:var(--success)">Gratuite</span></div>`;
   } else {
     itemsEl.innerHTML = '<div class="summary-item"><span>Articles du panier</span></div>';
   }
   document.getElementById('order-total').textContent = orderTotal ? `${orderTotal.toFixed(2)} €` : '—';
-  document.getElementById('delivery-address').textContent = deliveryAddress;
-  document.getElementById('bank-ref').textContent = ORDER_ID;
+  document.getElementById('delivery-address').textContent = deliveryAddr;
+  document.getElementById('bank-ref').textContent = 'CMD-' + Date.now();
 
   // ── Stripe ──────────────────────────────────────────────────────────────────
-  const stripe = Stripe('pk_test_51T7HBz2W5zWZNTddhJ0AhZw5266UNtieGW2g04tXqFRUdzTievQSZcR6WI6BuWo83BsQb25FpFtXFPQPOfN3swNT00NnSoDAny'); // ← remplacer par votre clé
+  const stripe = Stripe('pk_test_51T7HBz2W5zWZNTddhJ0AhZw5266UNtieGW2g04tXqFRUdzTievQSZcR6WI6BuWo83BsQb25FpFtXFPQPOfN3swNT00NnSoDAny');
   const elements = stripe.elements({ appearance: { theme: 'night', variables: { colorPrimary: '#f0c860' } } });
   const cardElement = elements.create('card', { style: { base: { color: '#f0eff4', fontFamily: 'DM Sans, sans-serif', fontSize: '15px' } } });
   cardElement.mount('#card-element');
@@ -283,21 +234,31 @@
     const btn = document.getElementById('btn-stripe');
     btn.disabled = true; btn.textContent = '⏳ Traitement…';
     try {
-      // 1. Créer le PaymentIntent côté serveur
+      // 1. Créer le PaymentIntent
       const res = await fetch('/api/payment/stripe/create-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ amount: orderTotal, orderId: ORDER_ID }),
+        body: JSON.stringify({ amount: orderTotal }),
       });
       const { clientSecret } = await res.json();
 
-      // 2. Confirmer le paiement avec Stripe.js
+      // 2. Confirmer avec Stripe.js
       const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: { card: cardElement, billing_details: { name: document.getElementById('card-name').value } },
       });
 
-      if (error) { showToast(error.message, 'error'); }
-      else if (paymentIntent.status === 'succeeded') {
+      if (error) {
+        showToast(error.message, 'error');
+      } else if (paymentIntent.status === 'succeeded') {
+        // 3. Sauvegarder la commande en BDD
+        await fetch('/api/payment/stripe/confirm-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ products, delivery: deliveryInfo, total: orderTotal, paymentIntentId: paymentIntent.id }),
+        });
+        localStorage.removeItem('cart');
+        localStorage.removeItem('cartItems');
+        localStorage.removeItem('cartTotal');
         showToast('✅ Paiement réussi ! Merci pour votre commande.', 'success');
         setTimeout(() => window.location.href = '/orders.html', 2000);
       }
@@ -305,9 +266,8 @@
     btn.disabled = false; btn.innerHTML = '🔒 Payer maintenant';
   }
 
-  // ── PayPal ────
+  // ── PayPal ───────────────────────────────────────────────────────────────────
   let paypalRendered = false;
-
   function renderPayPal() {
     if (paypalRendered) return;
     paypalRendered = true;
@@ -316,7 +276,7 @@
         const res = await fetch('/api/payment/paypal/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ amount: orderTotal.toFixed(2), orderId: ORDER_ID }),
+          body: JSON.stringify({ amount: orderTotal.toFixed(2) }),
         });
         const { paypalOrderId } = await res.json();
         return paypalOrderId;
@@ -324,10 +284,14 @@
       onApprove: async (data) => {
         const res = await fetch(`/api/payment/paypal/capture/${data.orderID}`, {
           method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ products, delivery: deliveryInfo, total: orderTotal }),
         });
         const result = await res.json();
         if (result.success) {
+          localStorage.removeItem('cart');
+          localStorage.removeItem('cartItems');
+          localStorage.removeItem('cartTotal');
           showToast('✅ Paiement PayPal confirmé !', 'success');
           setTimeout(() => window.location.href = '/orders.html', 2000);
         }
@@ -336,40 +300,46 @@
     }).render('#paypal-button-container');
   }
 
-  // ── Cash on delivery ─────────────────────────────────────────────────────────
+  // ── Cash à la livraison ──────────────────────────────────────────────────────
   async function payCash() {
     try {
       const res = await fetch('/api/payment/cash-on-delivery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ orderId: ORDER_ID }),
+        body: JSON.stringify({ products, delivery: deliveryInfo, total: orderTotal }),
       });
       const data = await res.json();
       if (data.success) {
+        localStorage.removeItem('cart');
+        localStorage.removeItem('cartItems');
+        localStorage.removeItem('cartTotal');
         showToast('✅ Commande confirmée ! Paiement à la livraison.', 'success');
         setTimeout(() => window.location.href = '/orders.html', 2000);
       }
     } catch { showToast('Erreur réseau, réessayez.', 'error'); }
   }
 
-  // ── Virement bancaire ─────────────────────────────────────────────────────────
+  // ── Virement bancaire ────────────────────────────────────────────────────────
   async function payBank() {
     try {
       const res = await fetch('/api/payment/bank-transfer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ orderId: ORDER_ID }),
+        body: JSON.stringify({ products, delivery: deliveryInfo, total: orderTotal }),
       });
       const data = await res.json();
       if (data.success) {
-        document.getElementById('bank-iban').textContent = data.bankDetails.iban;
+        if (data.bankDetails) document.getElementById('bank-iban').textContent = data.bankDetails.iban;
+        localStorage.removeItem('cart');
+        localStorage.removeItem('cartItems');
+        localStorage.removeItem('cartTotal');
         showToast('✅ Commande enregistrée. Effectuez le virement.', 'success');
         setTimeout(() => window.location.href = '/orders.html', 3000);
       }
     } catch { showToast('Erreur réseau, réessayez.', 'error'); }
   }
 
-  // ── Switcher de méthode ──────────────────────────────────────────────────────
+  // ── Switcher ─────────────────────────────────────────────────────────────────
   function selectMethod(method) {
     document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.payment-form').forEach(el => el.classList.remove('visible'));
@@ -378,7 +348,7 @@
     if (method === 'paypal') renderPayPal();
   }
 
-  // ── Toast ────────────────────────────────────────────────────────────────────
+  // ── Toast ─────────────────────────────────────────────────────────────────────
   function showToast(msg, type) {
     const t = document.getElementById('toast');
     t.textContent = msg;

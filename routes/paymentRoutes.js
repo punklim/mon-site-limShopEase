@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
-// Gère les deux types d'export possibles du middleware
-const authMiddleware = require('../middleware/authMiddleware');
-const protect = authMiddleware.protect || authMiddleware;
+const { authenticateJWT } = require('../middleware/authMiddleware');
 
 const {
   createStripePaymentIntent,
@@ -15,17 +12,17 @@ const {
 } = require('../controllers/paymentController');
 
 // Stripe
-router.post('/stripe/create-intent', protect, createStripePaymentIntent);
+router.post('/stripe/create-intent', authenticateJWT, createStripePaymentIntent);
 router.post('/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
 
 // PayPal
-router.post('/paypal/create-order', protect, createPayPalOrder);
-router.post('/paypal/capture/:paypalOrderId', protect, capturePayPalOrder);
+router.post('/paypal/create-order', authenticateJWT, createPayPalOrder);
+router.post('/paypal/capture/:paypalOrderId', authenticateJWT, capturePayPalOrder);
 
 // Cash on delivery
-router.post('/cash-on-delivery', protect, cashOnDelivery);
+router.post('/cash-on-delivery', authenticateJWT, cashOnDelivery);
 
 // Virement bancaire
-router.post('/bank-transfer', protect, bankTransfer);
+router.post('/bank-transfer', authenticateJWT, bankTransfer);
 
 module.exports = router;

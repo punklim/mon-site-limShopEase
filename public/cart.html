@@ -369,38 +369,33 @@
     document.getElementById("backBtn").addEventListener("click", () => goToStep(1));
     document.getElementById("cancelBtn").addEventListener("click", () => document.getElementById("modalOverlay").classList.remove("open"));
 
-    // ✅ CONFIRMER LA COMMANDE — version originale sans Stripe
-    document.getElementById("confirmBtn").addEventListener("click", async () => {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const delivery = getDeliveryInfo();
-      const btn = document.getElementById("confirmBtn");
-      btn.textContent = "⏳ Envoi en cours...";
-      btn.disabled = true;
+    // ✅ CONFIRMER LA COMMANDE → redirige vers la page de paiement
+document.getElementById("confirmBtn").addEventListener("click", () => {
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const delivery = getDeliveryInfo();
 
-      try {
-        const res = await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-          body: JSON.stringify({ products: cart, delivery })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          localStorage.removeItem("cart");
-          document.getElementById("modalOverlay").classList.remove("open");
-          showToast("🎉 Commande confirmée !");
-          setTimeout(() => window.location.href = "orders.html", 1500);
-        } else {
-          showToast(data.message || "Erreur", false);
-          btn.textContent = "✅ Confirmer la commande";
-          btn.disabled = false;
-        }
-      } catch(err) {
-        showToast("Erreur serveur", false);
-        btn.textContent = "✅ Confirmer la commande";
-        btn.disabled = false;
-      }
-    });
+  // Calculer le total
+  let total = 0;
+  cart.forEach(id => {
+    const p = currentProducts.find(pr => pr._id === id);
+    if (p) total += p.price;
+  });
 
+  // Sauvegarder les infos pour la page de paiement
+  localStorage.setItem("cartItems", JSON.stringify(
+    cart.map((id, i) => {
+      const p = currentProducts.find(pr => pr._id === id);
+      return p ? { name: p.name, price: p.price, qty: 1 } : null;
+    }).filter(Boolean)
+  ));
+  localStorage.setItem("cartTotal", total.toString());
+  localStorage.setItem("deliveryAddress", `${delivery.address}, ${delivery.postalCode} ${delivery.city}`);
+  localStorage.setItem("deliveryInfo", JSON.stringify(delivery));
+
+  // Rediriger vers la page de paiement
+  document.getElementById("modalOverlay").classList.remove("open");
+  window.location.href = "payment.html";
+});
     loadCart();
   </script>
 </body>

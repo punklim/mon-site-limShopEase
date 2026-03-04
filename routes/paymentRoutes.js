@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
+
+// Gère les deux types d'export possibles du middleware
+const authMiddleware = require('../middleware/authMiddleware');
+const protect = authMiddleware.protect || authMiddleware;
+
 const {
   createStripePaymentIntent,
   stripeWebhook,

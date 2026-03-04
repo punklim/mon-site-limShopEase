@@ -71,6 +71,10 @@ exports.createPayPalOrder = async (req, res) => {
   try {
     const { amount, currency = 'EUR' } = req.body;
     const accessToken = await getPayPalAccessToken();
+    
+    console.log('PayPal accessToken:', accessToken ? 'OK' : 'MANQUANT');
+    console.log('PayPal amount:', amount);
+    
     const response = await fetch(`${process.env.PAYPAL_BASE_URL}/v2/checkout/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
@@ -79,9 +83,20 @@ exports.createPayPalOrder = async (req, res) => {
         purchase_units: [{ amount: { currency_code: currency, value: String(amount) } }],
       }),
     });
+    
     const order = await response.json();
+    console.log('PayPal order response:', JSON.stringify(order));
+    
+    if (!order.id) {
+      return res.status(400).json({ 
+        message: 'PayPal error', 
+        details: order 
+      });
+    }
+    
     res.json({ paypalOrderId: order.id });
   } catch (err) {
+    console.error('PayPal error:', err);
     res.status(500).json({ message: 'Erreur PayPal', error: err.message });
   }
 };

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopEase – Paiement</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AXzEkspminGj--BIw7Y:&currency=EUR"></script>
+  <style>
+    :root {
+      --bg: #0f0f13; --surface: #1a1a24; --surface2: #22222f;
+      --border: #2e2e40; --accent: #f0c860; --text: #f0eff4;
+      --muted: #8888aa; --success: #50d08a; --danger: #e85a5a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+    header {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(15,15,19,.9); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--accent); text-decoration: none; }
+
+    main { max-width: 900px; margin: 3rem auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 380px; gap: 2rem; }
+
+    /* ── Récap commande ── */
+    .order-summary {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.8rem;
+    }
+    .order-summary h2 { font-family: 'Playfair Display', serif; color: var(--accent); margin-bottom: 1.2rem; font-size: 1.2rem; }
+    .summary-item { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid var(--border); font-size: .9rem; }
+    .summary-total { display: flex; justify-content: space-between; padding: 1rem 0 0; font-weight: 700; font-size: 1.1rem; color: var(--accent); }
+
+    /* ── Panneau paiement ── */
+    .payment-panel {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.8rem;
+      position: sticky; top: 80px; height: fit-content;
+    }
+    .payment-panel h2 { font-family: 'Playfair Display', serif; color: var(--accent); margin-bottom: 1.5rem; font-size: 1.2rem; }
+
+    /* Options */
+    .payment-options { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1.8rem; }
+    .payment-option {
+      display: flex; align-items: center; gap: 1rem;
+      background: var(--surface2); border: 2px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.2rem; cursor: pointer;
+      transition: all .2s;
+    }
+    .payment-option:hover { border-color: var(--muted); }
+    .payment-option.active { border-color: var(--accent); background: rgba(240,200,96,.06); }
+    .payment-option input[type="radio"] { accent-color: var(--accent); width: 18px; height: 18px; }
+    .option-icon { font-size: 1.5rem; }
+    .option-info { flex: 1; }
+    .option-label { font-weight: 600; font-size: .95rem; }
+    .option-desc { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+    .option-badge {
+      font-size: .65rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 20px; background: rgba(240,200,96,.15); color: var(--accent); border: 1px solid var(--accent);
+    }
+
+    /* Formulaires */
+    .payment-form { display: none; margin-bottom: 1.5rem; }
+    .payment-form.visible { display: block; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: .4rem; }
+    .form-group input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: .7rem 1rem; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: .9rem; transition: border-color .2s;
+    }
+    .form-group input:focus { outline: none; border-color: var(--accent); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* Stripe Element */
+    #card-element {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: .85rem 1rem;
+    }
+    #card-errors { color: var(--danger); font-size: .82rem; margin-top: .5rem; min-height: 1rem; }
+
+    /* PayPal container */
+    #paypal-button-container { min-height: 50px; }
+
+    /* Info boxes */
+    .info-box {
+      background: rgba(80,208,138,.05); border: 1px solid rgba(80,208,138,.2);
+      border-radius: 10px; padding: 1rem 1.2rem; font-size: .84rem; color: var(--muted);
+      line-height: 1.6;
+    }
+    .info-box strong { color: var(--success); display: block; margin-bottom: .3rem; }
+    .info-box .iban { font-family: monospace; color: var(--text); font-size: .82rem; letter-spacing: .5px; }
+
+    /* Bouton */
+    .pay-btn {
+      width: 100%; padding: 1rem; border: none; border-radius: 12px;
+      background: var(--accent); color: #000; font-weight: 700; font-size: 1rem;
+      cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+    }
+    .pay-btn:hover { background: #f5d478; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(240,200,96,.3); }
+    .pay-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* Sécurité */
+    .security-note { display: flex; align-items: center; gap: .5rem; font-size: .75rem; color: var(--muted); margin-top: 1rem; justify-content: center; }
+
+    /* Success / Error */
+    .toast {
+      position: fixed; top: 1.5rem; right: 1.5rem; z-index: 999;
+      padding: 1rem 1.5rem; border-radius: 12px; font-weight: 600;
+      display: none; animation: slideIn .3s ease;
+    }
+    .toast.success { background: rgba(80,208,138,.15); border: 1px solid var(--success); color: var(--success); display: block; }
+    .toast.error { background: rgba(232,90,90,.15); border: 1px solid var(--danger); color: var(--danger); display: block; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 700px) { main { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<header>
+  <a href="/" class="logo">ShopEase</a>
+  <span style="color:var(--muted);font-size:.9rem;">Paiement sécurisé 🔒</span>
+</header>
+
+<main>
+  <!-- ── Récapitulatif ── -->
+  <div class="order-summary">
+    <h2>📦 Récapitulatif de commande</h2>
+    <div id="order-items">
+      <!-- Rempli dynamiquement via JS -->
+      <div class="summary-item"><span>Chargement...</span></div>
+    </div>
+    <div class="summary-total">
+      <span>Total</span>
+      <span id="order-total">—</span>
+    </div>
+    <div style="margin-top:1.5rem;padding:1rem;background:var(--surface2);border-radius:10px;font-size:.85rem;">
+      <div style="color:var(--muted);margin-bottom:.3rem;">Livraison à</div>
+      <div id="delivery-address" style="font-weight:500;">—</div>
+    </div>
+  </div>
+
+  <!-- ── Paiement ── -->
+  <div class="payment-panel">
+    <h2>💳 Choisir un mode de paiement</h2>
+
+    <div class="payment-options">
+
+      <label class="payment-option active" onclick="selectMethod('card')">
+        <input type="radio" name="payment" value="card" checked>
+        <span class="option-icon">💳</span>
+        <div class="option-info">
+          <div class="option-label">Carte bancaire</div>
+          <div class="option-desc">Visa, Mastercard, Amex…</div>
+        </div>
+        <span class="option-badge">Stripe</span>
+      </label>
+
+      <label class="payment-option" onclick="selectMethod('paypal')">
+        <input type="radio" name="payment" value="paypal">
+        <span class="option-icon">🅿️</span>
+        <div class="option-info">
+          <div class="option-label">PayPal</div>
+          <div class="option-desc">Paiement via votre compte PayPal</div>
+        </div>
+      </label>
+
+      <label class="payment-option" onclick="selectMethod('cash')">
+        <input type="radio" name="payment" value="cash">
+        <span class="option-icon">💵</span>
+        <div class="option-info">
+          <div class="option-label">Paiement à la livraison</div>
+          <div class="option-desc">Payez en cash à la réception</div>
+        </div>
+      </label>
+
+      <label class="payment-option" onclick="selectMethod('bank')">
+        <input type="radio" name="payment" value="bank">
+        <span class="option-icon">🏦</span>
+        <div class="option-info">
+          <div class="option-label">Virement bancaire</div>
+          <div class="option-desc">Paiement par virement SEPA</div>
+        </div>
+      </label>
+
+    </div>
+
+    <!-- Formulaire Carte (Stripe) -->
+    <div id="form-card" class="payment-form visible">
+      <div class="form-group">
+        <label>Titulaire de la carte</label>
+        <input type="text" id="card-name" placeholder="Jean Dupont">
+      </div>
+      <div class="form-group">
+        <label>Numéro de carte</label>
+        <div id="card-element"></div>
+        <div id="card-errors"></div>
+      </div>
+      <button class="pay-btn" id="btn-stripe" onclick="payWithStripe()">
+        🔒 Payer maintenant
+      </button>
+    </div>
+
+    <!-- Formulaire PayPal -->
+    <div id="form-paypal" class="payment-form">
+      <div style="margin-bottom:1rem;font-size:.85rem;color:var(--muted);">
+        Vous serez redirigé vers PayPal pour finaliser le paiement en toute sécurité.
+      </div>
+      <div id="paypal-button-container"></div>
+    </div>
+
+    <!-- Cash à la livraison -->
+    <div id="form-cash" class="payment-form">
+      <div class="info-box" style="margin-bottom:1.2rem;">
+        <strong>🚚 Comment ça marche ?</strong>
+        Vous payez en espèces directement au livreur lors de la réception de votre colis. Assurez-vous d'avoir le montant exact.
+      </div>
+      <button class="pay-btn" onclick="payCash()">✅ Confirmer la commande</button>
+    </div>
+
+    <!-- Virement bancaire -->
+    <div id="form-bank" class="payment-form">
+      <div class="info-box" style="margin-bottom:1.2rem;">
+        <strong>🏦 Coordonnées bancaires</strong>
+        <div style="margin-top:.5rem;">
+          Bénéficiaire : <span style="color:var(--text);">ShopEase Boutique</span><br>
+          IBAN : <span class="iban" id="bank-iban">FR76 XXXX XXXX XXXX XXXX XXXX XXX</span><br>
+          BIC : <span class="iban">XXXXFRPPXXX</span><br>
+          Référence : <span class="iban" id="bank-ref">CMD-XXXXXX</span>
+        </div>
+        <div style="margin-top:.7rem;font-size:.78rem;color:var(--danger);">
+          ⚠️ Indiquez la référence dans votre virement. Commande traitée sous 2–3 jours ouvrés.
+        </div>
+      </div>
+      <button class="pay-btn" onclick="payBank()">✅ J'ai effectué le virement</button>
+    </div>
+
+    <div class="security-note">🔒 Paiement 100% sécurisé · SSL · Données chiffrées</div>
+  </div>
+</main>
+
+<script>
+  // ── Données commande (récupérées depuis localStorage ou URL params) ──────────
+  const urlParams = new URLSearchParams(window.location.search);
+  const ORDER_ID = urlParams.get('orderId') || 'CMD-' + Date.now();
+  const token = localStorage.getItem('token');
+
+  // Exemple items – à remplacer par un appel API réel
+  const orderItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+  const orderTotal = parseFloat(localStorage.getItem('cartTotal') || '0');
+  const deliveryAddress = localStorage.getItem('deliveryAddress') || '—';
+
+  // Remplir le récapitulatif
+  const itemsEl = document.getElementById('order-items');
+  if (orderItems.length) {
+    itemsEl.innerHTML = orderItems.map(i =>
+      `<div class="summary-item"><span>${i.name} × ${i.qty}</span><span>${(i.price * i.qty).toFixed(2)} €</span></div>`
+    ).join('') +
+    `<div class="summary-item"><span>Livraison</span><span style="color:var(--success)">Gratuite</span></div>`;
+  } else {
+    itemsEl.innerHTML = '<div class="summary-item"><span>Articles du panier</span></div>';
+  }
+  document.getElementById('order-total').textContent = orderTotal ? `${orderTotal.toFixed(2)} €` : '—';
+  document.getElementById('delivery-address').textContent = deliveryAddress;
+  document.getElementById('bank-ref').textContent = ORDER_ID;
+
+  // ── Stripe ──────────────────────────────────────────────────────────────────
+  const stripe = Stripe('pk_test_51T7HBz2W5zWZNTddhJ0AhZw5266UNtieGW2g04tXqFRUdzTievQSZcR6WI6BuWo83BsQb25FpFtXFPQPOfN3swNT00NnSoDAny'); // ← remplacer par votre clé
+  const elements = stripe.elements({ appearance: { theme: 'night', variables: { colorPrimary: '#f0c860' } } });
+  const cardElement = elements.create('card', { style: { base: { color: '#f0eff4', fontFamily: 'DM Sans, sans-serif', fontSize: '15px' } } });
+  cardElement.mount('#card-element');
+  cardElement.on('change', e => { document.getElementById('card-errors').textContent = e.error ? e.error.message : ''; });
+
+  async function payWithStripe() {
+    const btn = document.getElementById('btn-stripe');
+    btn.disabled = true; btn.textContent = '⏳ Traitement…';
+    try {
+      // 1. Créer le PaymentIntent côté serveur
+      const res = await fetch('/api/payment/stripe/create-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ amount: orderTotal, orderId: ORDER_ID }),
+      });
+      const { clientSecret } = await res.json();
+
+      // 2. Confirmer le paiement avec Stripe.js
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: cardElement, billing_details: { name: document.getElementById('card-name').value } },
+      });
+
+      if (error) { showToast(error.message, 'error'); }
+      else if (paymentIntent.status === 'succeeded') {
+        showToast('✅ Paiement réussi ! Merci pour votre commande.', 'success');
+        setTimeout(() => window.location.href = '/orders.html', 2000);
+      }
+    } catch (err) { showToast('Erreur réseau, réessayez.', 'error'); }
+    btn.disabled = false; btn.innerHTML = '🔒 Payer maintenant';
+  }
+
+  // ── PayPal ────
+  let paypalRendered = false;
+
+  function renderPayPal() {
+    if (paypalRendered) return;
+    paypalRendered = true;
+    paypal.Buttons({
+      createOrder: async () => {
+        const res = await fetch('/api/payment/paypal/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ amount: orderTotal.toFixed(2), orderId: ORDER_ID }),
+        });
+        const { paypalOrderId } = await res.json();
+        return paypalOrderId;
+      },
+      onApprove: async (data) => {
+        const res = await fetch(`/api/payment/paypal/capture/${data.orderID}`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const result = await res.json();
+        if (result.success) {
+          showToast('✅ Paiement PayPal confirmé !', 'success');
+          setTimeout(() => window.location.href = '/orders.html', 2000);
+        }
+      },
+      onError: (err) => showToast('Erreur PayPal : ' + err, 'error'),
+    }).render('#paypal-button-container');
+  }
+
+  // ── Cash on delivery ─────────────────────────────────────────────────────────
+  async function payCash() {
+    try {
+      const res = await fetch('/api/payment/cash-on-delivery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ orderId: ORDER_ID }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('✅ Commande confirmée ! Paiement à la livraison.', 'success');
+        setTimeout(() => window.location.href = '/orders.html', 2000);
+      }
+    } catch { showToast('Erreur réseau, réessayez.', 'error'); }
+  }
+
+  // ── Virement bancaire ─────────────────────────────────────────────────────────
+  async function payBank() {
+    try {
+      const res = await fetch('/api/payment/bank-transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ orderId: ORDER_ID }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('bank-iban').textContent = data.bankDetails.iban;
+        showToast('✅ Commande enregistrée. Effectuez le virement.', 'success');
+        setTimeout(() => window.location.href = '/orders.html', 3000);
+      }
+    } catch { showToast('Erreur réseau, réessayez.', 'error'); }
+  }
+
+  // ── Switcher de méthode ──────────────────────────────────────────────────────
+  function selectMethod(method) {
+    document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.payment-form').forEach(el => el.classList.remove('visible'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('form-' + method).classList.add('visible');
+    if (method === 'paypal') renderPayPal();
+  }
+
+  // ── Toast ────────────────────────────────────────────────────────────────────
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type;
+    setTimeout(() => t.className = 'toast', 4000);
+  }
+</script>
+</body>
+</html>

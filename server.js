@@ -10,6 +10,9 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connecté"))
   .catch(err => console.log(err));
 
+// ⚠️ STRIPE WEBHOOK : doit être AVANT express.json()
+app.use("/api/payment/stripe/webhook", express.raw({ type: "application/json" }));
+
 app.use(cors());
 app.use(express.json());
 
@@ -18,6 +21,9 @@ app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
 const userRoutes = require("./routes/userRoutes");
 app.use("/api/users", userRoutes);
+
+// ✅ PAIEMENT : ajout ici
+app.use("/api/payment", require("./routes/paymentRoutes"));
 
 app.use(express.static(path.join(__dirname, "public")));
 

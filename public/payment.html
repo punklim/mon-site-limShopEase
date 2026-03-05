@@ -224,7 +224,7 @@
   document.getElementById('bank-ref').textContent = 'CMD-' + Date.now();
 
   // ── Stripe ──────────────────────────────────────────────────────────────────
-  const stripe = Stripe('pk_test_51T7HBz2W5zWZNTddhJ0AhZw5266UNtieGW2g04tXqFRUdzTievQSZcR6WI6BuWo83BsQb25FpFtXFPQPOfN3swNT00NnSoDAny');
+  const stripe = Stripe('pk_test_51T7HBz2W5zWZNTddhJ0AhZw5266UWtieGW2gO4tXqFRUdzTievQSZcR6WI6BuWo83BsQb25FpFtXFPQPOfN3swWT00NnSoDAnv');
   const elements = stripe.elements({ appearance: { theme: 'night', variables: { colorPrimary: '#f0c860' } } });
   const cardElement = elements.create('card', { style: { base: { color: '#f0eff4', fontFamily: 'DM Sans, sans-serif', fontSize: '15px' } } });
   cardElement.mount('#card-element');

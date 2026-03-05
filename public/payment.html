@@ -6,7 +6,7 @@
   <title>ShopEase – Paiement</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://www.paypal.com/sdk/js?client-id=AXzEkspminGj--BIw7Y:&currency=EUR"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AXzEkspminGj--BIw7YzhCWbkVTpTKRkkKT8SkCpbYsqScG-QhUL0NaNyoc7hsxXjGeEKyh7JvYhyeMt&currency=EUR"></script>
   <style>
     :root {
       --bg: #0f0f13; --surface: #1a1a24; --surface2: #22222f;
@@ -224,7 +224,7 @@
   document.getElementById('bank-ref').textContent = 'CMD-' + Date.now();
 
   // ── Stripe ──────────────────────────────────────────────────────────────────
-  const stripe = Stripe('pk_test_51T7HBz2W5zWZNTddhJ0AhZw5266UWtieGW2gO4tXqFRUdzTievQSZcR6WI6BuWo83BsQb25FpFtXFPQPOfN3swWT00NnSoDAnv');
+  const stripe = Stripe('pk_test_51T7HBz2W5zWZNTddqMa57RXHaXOwiNOeF72EnY8WRBfxiAAeycufseYLk65JCw9RlBK8VKRgb1J0tPP1CQuDS83Q00LGdRL2rW');
   const elements = stripe.elements({ appearance: { theme: 'night', variables: { colorPrimary: '#f0c860' } } });
   const cardElement = elements.create('card', { style: { base: { color: '#f0eff4', fontFamily: 'DM Sans, sans-serif', fontSize: '15px' } } });
   cardElement.mount('#card-element');

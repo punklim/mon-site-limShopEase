@@ -6,7 +6,7 @@
   <title>ShopEase – Paiement</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://www.paypal.com/sdk/js?client-id=AXzEkspminGj--BIw7YzhCWbkVTpTKRkkKT8SkCpbYsqScG-QhUL0NaNyoc7hsxXjGeEKyh7JvYhyeMt&currency=EUR"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AXzEkspminGj--BIw7Y:&currency=EUR"></script>
   <style>
     :root {
       --bg: #0f0f13; --surface: #1a1a24; --surface2: #22222f;
@@ -269,51 +269,37 @@
   // ── PayPal ───────────────────────────────────────────────────────────────────
   let paypalRendered = false;
   function renderPayPal() {
-  if (paypalRendered) return;
-  paypalRendered = true;
-  paypal.Buttons({
-    createOrder: async () => {
-      try {
+    if (paypalRendered) return;
+    paypalRendered = true;
+    paypal.Buttons({
+      createOrder: async () => {
         const res = await fetch('/api/payment/paypal/create-order', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json', 
-            'Authorization': `Bearer ${token}` 
-          },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ amount: orderTotal.toFixed(2) }),
         });
-        const data = await res.json();
-        console.log('PayPal createOrder response:', data); // debug
-        if (!data.paypalOrderId) {
-          throw new Error('Pas de paypalOrderId reçu : ' + JSON.stringify(data));
+        const { paypalOrderId } = await res.json();
+        return paypalOrderId;
+      },
+      onApprove: async (data) => {
+        const res = await fetch(`/api/payment/paypal/capture/${data.orderID}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ products, delivery: deliveryInfo, total: orderTotal }),
+        });
+        const result = await res.json();
+        if (result.success) {
+          localStorage.removeItem('cart');
+          localStorage.removeItem('cartItems');
+          localStorage.removeItem('cartTotal');
+          showToast('✅ Paiement PayPal confirmé !', 'success');
+          setTimeout(() => window.location.href = '/orders.html', 2000);
         }
-        return data.paypalOrderId;
-      } catch (err) {
-        showToast('Erreur PayPal : ' + err.message, 'error');
-        throw err;
-      }
-    },
-    onApprove: async (data) => {
-      const res = await fetch(`/api/payment/paypal/capture/${data.orderID}`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json', 
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({ products, delivery: deliveryInfo, total: orderTotal }),
-      });
-      const result = await res.json();
-      if (result.success) {
-        localStorage.removeItem('cart');
-        localStorage.removeItem('cartItems');
-        localStorage.removeItem('cartTotal');
-        showToast('✅ Paiement PayPal confirmé !', 'success');
-        setTimeout(() => window.location.href = '/orders.html', 2000);
-      }
-    },
-    onError: (err) => showToast('Erreur PayPal : ' + err, 'error'),
-  }).render('#paypal-button-container');
-}
+      },
+      onError: (err) => showToast('Erreur PayPal : ' + err, 'error'),
+    }).render('#paypal-button-container');
+  }
+
   // ── Cash à la livraison ──────────────────────────────────────────────────────
   async function payCash() {
     try {

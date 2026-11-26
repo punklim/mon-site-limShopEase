@@ -259,9 +259,8 @@
         localStorage.removeItem('cart');
         localStorage.removeItem('cartItems');
         localStorage.removeItem('cartTotal');
-       showToast('✅ Paiement réussi ! Merci pour votre commande.', 'success');
-       afficherBoutonWhatsApp('Carte bancaire (payé)');
-        setTimeout(() => window.location.href = '/orders.html', 2000);
+        showToast('✅ Paiement réussi ! Merci pour votre commande.', 'success');
+        afficherBoutonWhatsApp('Carte bancaire (payé)');
       }
     } catch (err) { showToast('Erreur réseau, réessayez.', 'error'); }
     btn.disabled = false; btn.innerHTML = '🔒 Payer maintenant';
@@ -293,9 +292,8 @@
           localStorage.removeItem('cart');
           localStorage.removeItem('cartItems');
           localStorage.removeItem('cartTotal');
-         showToast('✅ Paiement PayPal confirmé !', 'success');
-         afficherBoutonWhatsApp('PayPal (payé)');
-          setTimeout(() => window.location.href = '/orders.html', 2000);
+          showToast('✅ Paiement PayPal confirmé !', 'success');
+          afficherBoutonWhatsApp('PayPal (payé)');
         }
       },
       onError: (err) => showToast('Erreur PayPal : ' + err, 'error'),
@@ -317,7 +315,6 @@
         localStorage.removeItem('cartTotal');
         showToast('✅ Commande confirmée ! Paiement à la livraison.', 'success');
         afficherBoutonWhatsApp('Paiement à la livraison (cash)');
-        setTimeout(() => window.location.href = '/orders.html', 2000);
       }
     } catch { showToast('Erreur réseau, réessayez.', 'error'); }
   }
@@ -338,7 +335,6 @@
         localStorage.removeItem('cartTotal');
         showToast('✅ Commande enregistrée. Effectuez le virement.', 'success');
         afficherBoutonWhatsApp('Virement bancaire (en attente)');
-        setTimeout(() => window.location.href = '/orders.html', 3000);
       }
     } catch { showToast('Erreur réseau, réessayez.', 'error'); }
   }
@@ -351,30 +347,41 @@
     document.getElementById('form-' + method).classList.add('visible');
     if (method === 'paypal') renderPayPal();
   }
-    // ── Notification WhatsApp après commande ─────────────────────────────────────
+
+  // ── Notification WhatsApp après commande ─────────────────────────────────────
   const WHATSAPP_NUMERO = '212782842775';
 
   function afficherBoutonWhatsApp(modePaiement) {
     const d = deliveryInfo || {};
+    const ligneSep = '━━━━━━━━━━━━━━━━━━';
 
     const lignes = products.map(p =>
-      `• ${p.name} x${p.quantity} : ${(p.price * p.quantity).toFixed(2)} €`
+      `🔸 ${p.name} × ${p.quantity} : *${(p.price * p.quantity).toFixed(2)} €*`
     ).join('\n');
 
+    const adresse = [d.address, d.postalCode, d.city].filter(Boolean).join(', ');
+
     const message =
-`Bonjour, voici ma commande ShopEase :
+`🛍️ *NOUVELLE COMMANDE - ShopEase*
+${ligneSep}
 
-Réf : ${document.getElementById('bank-ref').textContent}
+🔖 *Réf :* ${document.getElementById('bank-ref').textContent}
 
+📦 *ARTICLES*
 ${lignes}
 
-Total : ${orderTotal.toFixed(2)} €
-Paiement : ${modePaiement}
+${ligneSep}
+💰 *TOTAL : ${orderTotal.toFixed(2)} €*
+💳 *Paiement :* ${modePaiement}
+${ligneSep}
 
-Nom : ${d.name || ''}
-Téléphone : ${d.phone || ''}
-Email : ${d.email || ''}
-Adresse : ${[d.address, d.postalCode, d.city].filter(Boolean).join(', ')}`;
+👤 *CLIENT*
+• Nom : ${d.name || '-'}
+📞 Tél : ${d.phone || '-'}
+✉️ Email : ${d.email || '-'}
+📍 Adresse : ${adresse || '-'}
+
+_Merci de votre confiance_ 🙏`;
 
     const lien = 'https://wa.me/' + WHATSAPP_NUMERO + '?text=' + encodeURIComponent(message);
 

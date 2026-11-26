@@ -259,7 +259,8 @@
         localStorage.removeItem('cart');
         localStorage.removeItem('cartItems');
         localStorage.removeItem('cartTotal');
-        showToast('✅ Paiement réussi ! Merci pour votre commande.', 'success');
+       showToast('✅ Paiement réussi ! Merci pour votre commande.', 'success');
+       afficherBoutonWhatsApp('Carte bancaire (payé)');
         setTimeout(() => window.location.href = '/orders.html', 2000);
       }
     } catch (err) { showToast('Erreur réseau, réessayez.', 'error'); }
@@ -292,7 +293,8 @@
           localStorage.removeItem('cart');
           localStorage.removeItem('cartItems');
           localStorage.removeItem('cartTotal');
-          showToast('✅ Paiement PayPal confirmé !', 'success');
+         showToast('✅ Paiement PayPal confirmé !', 'success');
+         afficherBoutonWhatsApp('PayPal (payé)');
           setTimeout(() => window.location.href = '/orders.html', 2000);
         }
       },
@@ -314,6 +316,7 @@
         localStorage.removeItem('cartItems');
         localStorage.removeItem('cartTotal');
         showToast('✅ Commande confirmée ! Paiement à la livraison.', 'success');
+        afficherBoutonWhatsApp('Paiement à la livraison (cash)');
         setTimeout(() => window.location.href = '/orders.html', 2000);
       }
     } catch { showToast('Erreur réseau, réessayez.', 'error'); }
@@ -334,6 +337,7 @@
         localStorage.removeItem('cartItems');
         localStorage.removeItem('cartTotal');
         showToast('✅ Commande enregistrée. Effectuez le virement.', 'success');
+        afficherBoutonWhatsApp('Virement bancaire (en attente)');
         setTimeout(() => window.location.href = '/orders.html', 3000);
       }
     } catch { showToast('Erreur réseau, réessayez.', 'error'); }
@@ -346,6 +350,63 @@
     event.currentTarget.classList.add('active');
     document.getElementById('form-' + method).classList.add('visible');
     if (method === 'paypal') renderPayPal();
+  }
+    // ── Notification WhatsApp après commande ─────────────────────────────────────
+  const WHATSAPP_NUMERO = '212782842775';
+
+  function afficherBoutonWhatsApp(modePaiement) {
+    const d = deliveryInfo || {};
+
+    const lignes = products.map(p =>
+      `• ${p.name} x${p.quantity} : ${(p.price * p.quantity).toFixed(2)} €`
+    ).join('\n');
+
+    const message =
+`Bonjour, voici ma commande ShopEase :
+
+Réf : ${document.getElementById('bank-ref').textContent}
+
+${lignes}
+
+Total : ${orderTotal.toFixed(2)} €
+Paiement : ${modePaiement}
+
+Nom : ${d.name || ''}
+Téléphone : ${d.phone || ''}
+Email : ${d.email || ''}
+Adresse : ${[d.address, d.postalCode, d.city].filter(Boolean).join(', ')}`;
+
+    const lien = 'https://wa.me/' + WHATSAPP_NUMERO + '?text=' + encodeURIComponent(message);
+
+    const overlay = document.createElement('div');
+    overlay.style.cssText =
+      'position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;' +
+      'align-items:center;justify-content:center;z-index:99999;padding:20px;';
+
+    overlay.innerHTML = `
+      <div style="background:#1a1a24;border:1px solid #2e2e40;border-radius:16px;
+                  padding:28px;max-width:420px;width:100%;text-align:center;color:#f0eff4;">
+        <div style="font-size:48px;">✅</div>
+        <h2 style="margin:10px 0 6px;font-family:'Playfair Display',serif;">Commande enregistrée !</h2>
+        <p style="color:#8888aa;margin-bottom:20px;font-size:.9rem;">
+          Envoyez le récapitulatif sur WhatsApp pour que nous traitions votre commande plus vite.
+        </p>
+        <a href="${lien}" target="_blank" rel="noopener"
+           style="display:block;background:#25D366;color:#fff;padding:14px;
+                  border-radius:10px;font-weight:700;text-decoration:none;">
+          💬 Envoyer ma commande sur WhatsApp
+        </a>
+        <button id="wa-fermer"
+           style="margin-top:14px;background:none;border:none;color:#8888aa;
+                  cursor:pointer;font-size:.85rem;">
+          Continuer sans envoyer
+        </button>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    overlay.querySelector('#wa-fermer').onclick = () => {
+      window.location.href = '/orders.html';
+    };
   }
 
   // ── Toast ─────────────────────────────────────────────────────────────────────

@@ -383,7 +383,12 @@ ${ligneSep}
 
 _Merci de votre confiance_ 🙏`;
 
-    const lien = 'https://wa.me/' + WHATSAPP_NUMERO + '?text=' + encodeURIComponent(message);
+        // Téléphone : api.whatsapp.com / Ordinateur : WhatsApp Web direct (évite la redirection wa.me)
+    const estMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const base = estMobile
+      ? 'https://api.whatsapp.com/send'
+      : 'https://web.whatsapp.com/send';
+    const lien = base + '?phone=' + WHATSAPP_NUMERO + '&text=' + encodeURIComponent(message);
 
     const overlay = document.createElement('div');
     overlay.style.cssText =
